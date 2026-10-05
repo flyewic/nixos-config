@@ -5,6 +5,7 @@
       common
       dev
       graphical
+      gnome-keyring
     ];
     services.power-profiles-daemon.enable = true;
     # TODO: tlp vs power-profiles-daemon, wireless backend

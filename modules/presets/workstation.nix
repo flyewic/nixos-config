@@ -7,6 +7,7 @@
       graphical
       nvidia
       steam
+      gnome-keyring
     ];
   };
 
