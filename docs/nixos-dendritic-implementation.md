@@ -275,12 +275,14 @@ Do not use `config.flake.modules` inside an `imports` list. `imports` cannot dep
 { inputs, ... }:
 {
   flake.modules.nixos.dev = { pkgs, ... }: {
+    imports = with inputs.self.modules.nixos; [ fish ];
     environment.systemPackages = with pkgs; [ git ];
+    users.defaultUserShell = pkgs.fish;
   };
 
-  flake.modules.homeManager.dev = { pkgs, ... }: {
+  flake.modules.homeManager.dev = {
+    imports = with inputs.self.modules.homeManager; [ fish ];
     programs.git.enable = true;
-    programs.fish.enable = true; # TODO: fish or nushell
   };
 }
 ```
@@ -655,7 +657,7 @@ Build on the workstation and push. For a builder host later, set `deployment.bui
 
 - Username, desktop hostname, laptop hostname.
 - Disk by-id for both machines, swap size, whether the desktop games subvolume is a separate disk.
-- Shell: fish or nushell. The `dev` preset is the only place this should be set.
+- Shell: fish. The `dev` preset sets `users.defaultUserShell`. The fish aspect holds the config.
 - Age key locations and who the admin recipient is.
 - Which compositor the desktop imports first. The other two aspects still land in the tree.
 - Wireless and power on the laptop (NetworkManager is a safe `common` default; power stays in the laptop preset).

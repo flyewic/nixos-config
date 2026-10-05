@@ -94,4 +94,4 @@ Run `nix fmt` before a commit that changes Nix. Commit the lockfile.
 
 ## Still open
 
-Username, hostnames, disk by-ids, swap size, fish or nushell, which compositor the desktop imports first, tailnet name. Leave the markers. Ask.
+Username, hostnames, disk by-ids, swap size, which compositor the desktop imports first, tailnet name. Leave the markers. Ask. The login shell is fish, set in the dev preset.
