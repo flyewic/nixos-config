@@ -1,12 +1,14 @@
 { inputs, ... }:
 {
-  flake.modules.nixos.graphical = {
+  flake.modules.nixos.graphical = { pkgs, ... }: {
     imports = with inputs.self.modules.nixos; [ pipewire ];
     services.xserver.enable = false;
     xdg.portal.enable = true;
+    fonts.packages = [ pkgs.nerd-fonts."jetbrains-mono" ];
   };
 
   flake.modules.homeManager.graphical = {
-    # TODO: fonts, cursor, gtk theme once a compositor is chosen
+    imports = with inputs.self.modules.homeManager; [ fuzzel ];
+    # TODO: cursor, gtk theme once a compositor is chosen
   };
 }
