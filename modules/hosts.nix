@@ -17,6 +17,9 @@ in
   flake.nixosConfigurations = {
     desktop = mkNixos [ self.modules.nixos.desktop ];
     laptop = mkNixos [ self.modules.nixos.laptop ];
+    # Local QEMU test box. Not a colmena target: it has no deployment block
+    # and lives only as long as its run script.
+    vm = mkNixos [ self.modules.nixos.vm ];
   };
 
   flake.colmenaHive = inputs.colmena.lib.makeHive {
