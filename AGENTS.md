@@ -68,11 +68,27 @@ There is no `home-manager switch` and no `nh home`. User config is the system ge
 
 ## Commits
 
-Write the subject as one imperative sentence, at most 72 characters. Say what landed. Write plain sentences, with no type prefix.
+```text
+type(scope)!: title
 
-Add a body when the subject does not say why. Use it for a constraint the diff does not show. Wrap the body at 72 characters.
+WHAT:
+- add …
+- remove …
+- change …
 
-Keep one concern in each commit. Docs that cite each other belong in one commit. Commit a `flake.lock` bump on its own.
+WHY:
+- …
+
+BREAKING CHANGE: …
+```
+
+`type` is `feat`, `fix`, `refactor`, `docs`, or `chore`. `scope` is the aspect, preset, host, or `repo`, `flake`, or the doc name. The subject line, from `type` through the title, is at most 72 characters. The title is lowercase and imperative, with no trailing period.
+
+WHAT lists the behavior that landed, as add, remove, and change lines. WHY says why that behavior should stay. One reason may cover several WHAT lines.
+
+Put `!` after the scope when a host, a preset import, or a documented command must change with this commit. The BREAKING CHANGE line says what that later edit does differently. Leave both off when nothing already in the tree has to change.
+
+One concern per commit. Docs that cite each other share a commit. A `flake.lock` bump is `chore(flake)` on its own.
 
 Run `nix fmt` before a commit that changes Nix. Commit the lockfile.
 
