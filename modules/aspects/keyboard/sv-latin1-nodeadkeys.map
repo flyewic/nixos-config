@@ -1,0 +1,6 @@
+include "sv-latin1"
+
+# sv-latin1 has dead keys on keycode 13 (acute/grave) and 27 (diaeresis).
+# Map them to spacing characters so nothing is dead.
+keycode 13 = acute grave
+keycode 27 = diaeresis asciicircum asciitilde

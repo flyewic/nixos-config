@@ -5,6 +5,7 @@
       nix
       users
       locale
+      keyboard
       network
       openssh
       sops
