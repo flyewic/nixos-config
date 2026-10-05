@@ -5,10 +5,10 @@ result-*
 # direnv
 .direnv/
 
-# sops / age private keys. Public keys in .sops.yaml are fine.
+# Age private keys. The encrypted secrets/secrets.yaml and .sops.yaml stay tracked.
+age/
 *.age
 keys.txt
-age/admin.txt
 **/key.txt
 
 # installer leftovers and disk images
