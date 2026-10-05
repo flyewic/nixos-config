@@ -50,12 +50,12 @@ lsblk -o NAME,SIZE,MODEL,SERIAL
 ls -l /dev/disk/by-id/
 ```
 
-Copy the by-id path for the system disk into `modules/hosts/desktop/disk.nix`. Never use `/dev/nvme0n1`. Names move. By-id does not.
+Copy the by-id path for the system disk into `modules/hosts/desktop/_disk.nix`. Never use `/dev/nvme0n1`. Names move. By-id does not.
 
 Partition and mount with disko, then install:
 
 ```bash
-sudo nix run github:nix-community/disko -- --mode disko ./modules/hosts/desktop/disk.nix
+sudo nix run github:nix-community/disko -- --mode disko ./modules/hosts/desktop/_disk.nix
 sudo nixos-install --flake .#desktop
 ```
 
@@ -115,13 +115,13 @@ A failed activation rolls back like `nixos-rebuild`. A failed copy means SSH or 
 Same sequence, other files.
 
 1. New host age key on the laptop, public half into `.sops.yaml`, `sops updatekeys`.
-2. By-id into `modules/hosts/laptop/disk.nix`. No `/games` subvolume. Smaller swap.
+2. By-id into `modules/hosts/laptop/_disk.nix`. No `/games` subvolume. Smaller swap.
 3. Host module imports the `laptop` preset, not `workstation`. No NVIDIA, no Steam.
 4. disko, `nixos-install --flake .#laptop`, console login, local switch.
 5. Secret decrypt check.
 6. `colmena apply --on @laptop`.
 
-Do not copy `desktop/disk.nix` and edit the device path. The games subvolume will be created on the laptop disk.
+Do not copy `desktop/_disk.nix` and edit the device path. The games subvolume will be created on the laptop disk.
 
 ## 7. A later server
 
@@ -151,7 +151,7 @@ User config ships with the system generation. There is no `home-manager switch` 
 
 - Secret declared, key missing: activation error from sops-nix. Install the key, or drop the secret, and switch again.
 - `deployment` option unknown: `deploymentOptions` is not imported into `nixosSystem`. See the host wiring in the implementation guide.
-- Disk device missing at boot: by-id typo, or the disk moved. Fix `disk.nix` from the installer. Do not rerun disko on a disk that already has the install unless you mean to wipe it.
+- Disk device missing at boot: by-id typo, or the disk moved. Fix `_disk.nix` from the installer. Do not rerun disko on a disk that already has the install unless you mean to wipe it.
 - Colmena cannot connect: target host and root SSH, not the flake. `--dry-run` still evaluates. A successful dry-run with a failed apply is the network.
 
 ## Still not filled in

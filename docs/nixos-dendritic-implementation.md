@@ -50,12 +50,12 @@ modules/
   hosts/
     desktop/
       default.nix          # identity, deployment, preset imports, HM user
-      disk.nix             # disko, including games subvolume
-      hardware.nix         # generated, or nixos-hardware import
+      _disk.nix            # disko, including games subvolume. _ skips import-tree
+      _hardware.nix        # generated, or nixos-hardware import
     laptop/
       default.nix
-      disk.nix
-      hardware.nix
+      _disk.nix
+      _hardware.nix
   presets/
     common.nix             # nix, locale, users, openssh, sops, nh
     dev.nix                # shells, git, editor, build tools
@@ -386,8 +386,8 @@ in
 {
   flake.modules.nixos.desktop = { ... }: {
     imports = [
-      ./disk.nix
-      ./hardware.nix
+      ./_disk.nix
+      ./_hardware.nix
       inputs.disko.nixosModules.disko
       inputs.self.modules.nixos.workstation
       inputs.self.modules.nixos.hyprland # TODO: hyprland | niri | river
@@ -411,7 +411,7 @@ in
 }
 ```
 
-The laptop host is the same file with `laptop` presets, no `nvidia` or `steam`, and its own compositor import. Hardware modules come from `nixos-hardware` when a profile exists, otherwise from `nixos-generate-config`.
+The laptop host is the same file with `laptop` presets, no `nvidia` or `steam`, and its own compositor import. The preset and the host both write `flake.modules.nixos.laptop`, so the host does not import that preset by name. Importing it would loop. Hardware modules come from `nixos-hardware` when a profile exists, otherwise from `nixos-generate-config`.
 
 ## Phase 5: disks
 
@@ -420,11 +420,11 @@ Stateful btrfs. No impermanence, no tmpfs root. Subvolumes exist so `/nix` and `
 Desktop adds a games subvolume. Steam libraries should live there, not under `/home`, so a home rollback does not touch game data.
 
 ```nix
-# modules/hosts/desktop/disk.nix
+# modules/hosts/desktop/_disk.nix
 {
   disko.devices.disk.main = {
     type = "disk";
-    device = "TODO_BY_ID"; # /dev/disk/by-id/..., never /dev/nvme0n1
+    device = "/dev/disk/by-id/TODO_BY_ID"; # never /dev/nvme0n1. disko requires an absolute path
     content = {
       type = "gpt";
       partitions = {
@@ -478,7 +478,7 @@ Laptop disk is the same without `/games`, and with a smaller swap. Do not factor
 Install with disko, then the flake:
 
 ```bash
-sudo nix run github:nix-community/disko -- --mode disko ./modules/hosts/desktop/disk.nix
+sudo nix run github:nix-community/disko -- --mode disko ./modules/hosts/desktop/_disk.nix
 sudo nixos-install --flake .#desktop
 ```
 
@@ -635,7 +635,7 @@ Build on the workstation and push. For a builder host later, set `deployment.bui
 
 ## Adding a machine
 
-1. `modules/hosts/<name>/{default.nix,disk.nix,hardware.nix}`.
+1. `modules/hosts/<name>/{default.nix,_disk.nix,_hardware.nix}`. The `_` prefix keeps import-tree from loading those files. disko runs `_disk.nix` directly.
 2. Import an existing preset. Add a preset only if the role is new.
 3. Register the host in `modules/hosts.nix` for both `nixosConfigurations` and `colmenaHive`.
 4. Add the age recipient to `.sops.yaml` and rekey.

@@ -37,7 +37,7 @@ New feature: add `modules/aspects/<name>.nix` with `flake.modules.nixos.<name>` 
 
 New role: add a preset that imports existing presets or aspects. `workstation` already imports `common`, `dev`, `graphical`, `nvidia`, `steam`. `laptop` stops before nvidia and steam. `server` is `common` only.
 
-New machine: `modules/hosts/<name>/{default.nix,disk.nix,hardware.nix}`, register it in `modules/hosts.nix` for both `nixosConfigurations` and `colmenaHive`, add an age recipient, `sops updatekeys`. Do not copy `desktop/disk.nix` onto a laptop or a server. The games subvolume is desktop-only.
+New machine: `modules/hosts/<name>/{default.nix,_disk.nix,_hardware.nix}`, register it in `modules/hosts.nix` for both `nixosConfigurations` and `colmenaHive`, add an age recipient, `sops updatekeys`. Do not copy `desktop/_disk.nix` onto a laptop or a server. The games subvolume is desktop-only. `_` keeps import-tree from loading the disk and hardware files. disko runs `_disk.nix` directly.
 
 Compositor swap: change the import on the host module, both the NixOS class and the home-manager user imports. Do not edit `graphical`.
 
