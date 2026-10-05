@@ -1,0 +1,22 @@
+# result symlinks from nix build / nixos-rebuild
+result
+result-*
+
+# direnv
+.direnv/
+
+# sops / age private keys. Public keys in .sops.yaml are fine.
+*.age
+keys.txt
+age/admin.txt
+**/key.txt
+
+# installer leftovers and disk images
+*.iso
+*.qcow2
+
+# editor and OS
+.direnv
+*.swp
+*~
+.DS_Store
