@@ -15,6 +15,7 @@
       kdeconnect
       haruna
       qbittorrent
+      noctalia
     ];
     services.xserver.enable = false;
     xdg.portal.enable = true;
@@ -22,7 +23,10 @@
   };
 
   flake.modules.homeManager.graphical = {
-    imports = with inputs.self.modules.homeManager; [ fuzzel ];
+    imports = with inputs.self.modules.homeManager; [
+      fuzzel
+      noctalia
+    ];
     # TODO: cursor, gtk theme once a compositor is chosen
   };
 }

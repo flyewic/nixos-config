@@ -30,7 +30,7 @@ modules/aspects/system/            users, locale, keyboard, kernel, nix, nh, net
 modules/aspects/programs/          fish, alacritty, ghostty, kitty, terminal-session, zellij, herdr, fuzzel
 modules/aspects/programs/editors/  neovim, zed
 modules/aspects/programs/tools/    fastfetch, btop
-modules/aspects/session/           hyprland, niri, river, greetd, pipewire, gnome-keyring, oo7
+modules/aspects/session/           hyprland, niri, river, greetd, pipewire, gnome-keyring, oo7, noctalia
 modules/aspects/hardware/          nvidia, nvidia-prime
 modules/aspects/gaming/            steam, faugus, lutris, heroic, protonplus, goverlay, mangohud
 modules/aspects/flatpak/           default (daemon), bitwarden, spotify, goofcord, signal, zen, easyeffects

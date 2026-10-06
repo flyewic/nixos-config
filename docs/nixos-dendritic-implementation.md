@@ -80,7 +80,7 @@ modules/
     programs/              fish, alacritty, ghostty, kitty, terminal-session, zellij, herdr, fuzzel
     programs/editors/      neovim, zed
     programs/tools/        fastfetch, btop
-    session/               hyprland, niri, river, greetd, pipewire, gnome-keyring, oo7
+    session/               hyprland, niri, river, greetd, pipewire, gnome-keyring, oo7, noctalia
     hardware/              nvidia, nvidia-prime
     gaming/                steam, faugus, lutris, heroic, protonplus, goverlay, mangohud
     flatpak/               default (daemon), bitwarden, spotify, goofcord, signal, zen, easyeffects
