@@ -75,10 +75,6 @@
           sound.enabled = false;
           toast.delivery = "off";
         };
-        theme = {
-          name = "one-dark";
-          auto_switch = false;
-        };
       };
     };
   };

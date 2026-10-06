@@ -8,14 +8,9 @@
       # stays off because ghostty's startup.sh is what attaches the session.
       enableFishIntegration = false;
       settings = {
-        theme = "darkly";
         default_mode = "locked";
         session_serialization = false;
         show_startup_tips = false;
-      };
-      themes = {
-        darkly = ./zellij/themes/darkly.kdl;
-        otto = ./zellij/themes/otto.kdl;
       };
     };
   };
