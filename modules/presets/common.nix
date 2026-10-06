@@ -4,6 +4,7 @@
     imports = with inputs.self.modules.nixos; [
       nix
       kernel
+      zram
       users
       locale
       keyboard

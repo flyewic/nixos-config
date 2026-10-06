@@ -26,7 +26,7 @@ modules/treefmt.nix                nixfmt and just formatter
 modules/checks.nix                 perSystem nixos-eval checks
 modules/devshell.nix               admin devShell
 modules/hosts.nix                  only file that calls nixosSystem and makeHive
-modules/aspects/system/            users, locale, keyboard, kernel, nix, nh, network, openssh, sops, tailscale
+modules/aspects/system/            users, locale, keyboard, kernel, zram, nix, nh, network, openssh, sops, tailscale
 modules/aspects/programs/          fish, alacritty, ghostty, kitty, terminal-session, zellij, herdr, fuzzel
 modules/aspects/programs/editors/  neovim, zed
 modules/aspects/programs/tools/    fastfetch, btop
