@@ -11,13 +11,17 @@
     };
   };
 
-  # The console map is sv-latin1 with its dead keys removed. Wayland
-  # compositors ignore the NixOS xkb options, so each compositor reads
-  # keyboard.layout and keyboard.variant too. earlySetup puts this map in
-  # the initrd. udev starts systemd-vconsole-setup on its own, so the LUKS
-  # units wait for that service before the passphrase prompt.
+  # useXkbConfig derives the console map from the xkb settings below, so
+  # ckbcomp emits one self-contained map. A hand-written map that includes
+  # "sv-latin1" does not load: kbd only resolves includes with a "" or
+  # ".inc" suffix and never looks in i386/qwerty, so loadkeys fails and the
+  # console keeps the built-in us layout. Wayland compositors ignore the
+  # NixOS xkb options, so each compositor reads keyboard.layout and
+  # keyboard.variant too. earlySetup puts this map in the initrd. udev
+  # starts systemd-vconsole-setup on its own, so the LUKS units wait for
+  # that service before the passphrase prompt.
   config.flake.modules.nixos.keyboard = {
-    console.keyMap = ./keyboard/sv-latin1-nodeadkeys.map;
+    console.useXkbConfig = true;
     console.earlySetup = true;
 
     boot.initrd.systemd.services."systemd-cryptsetup@" = {
