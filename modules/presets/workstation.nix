@@ -5,6 +5,7 @@
       common
       dev
       graphical
+      apps
       nvidia
       steam
       faugus

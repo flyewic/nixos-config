@@ -4,7 +4,7 @@ NixOS configuration in the dendritic pattern. flake-parts is the top-level modul
 
 Hosts import presets. Presets import aspects. A file existing does not enable a feature. home-manager is a NixOS module, so user config is part of the system generation.
 
-Current presets are `common`, `dev`, `graphical`, `workstation`, `laptop`, `vm`, `server`, and `builder`. `workstation` includes NVIDIA, Steam, Gamemode, Faugus, Lutris, Heroic, ProtonPlus, Goverlay, and MangoHud. `laptop` does not. The `laptop-nvidia` host imports `laptop` and `nvidia-prime`. `vm` is `common`, `dev`, and `graphical` for a local QEMU box. `workstation`, `laptop`, and `vm` use oo7 for the secret portal. Hyprland, niri, and river are separate aspects. The host imports one.
+Current presets are `common`, `dev`, `graphical`, `apps`, `workstation`, `laptop`, `vm`, `server`, and `builder`. `workstation` includes NVIDIA, Steam, Gamemode, Faugus, Lutris, Heroic, ProtonPlus, Goverlay, and MangoHud. `laptop` does not. The `laptop-nvidia` host imports `laptop` and `nvidia-prime`. `vm` is `common`, `dev`, and `graphical` for a local QEMU box. `workstation`, `laptop`, and `vm` use oo7 for the secret portal. Hyprland, niri, and river are separate aspects. The host imports one.
 
 Host modules are namespaced `<name>-host` (`desktop-host`, `laptop-host`, `laptop-nvidia-host`, `vm-host`) so a host never collides with a preset of the same name. One `machines` map in `modules/hosts.nix` feeds both `nixosConfigurations` and `colmenaHive`. Real hosts log in through greetd with the tuigreet greeter; the `vm` keeps ly autologin.
 

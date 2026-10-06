@@ -48,9 +48,9 @@ Host modules are namespaced `<name>-host` (`desktop-host`, `laptop-host`, `lapto
 
 New feature: add `modules/aspects/<group>/<name>.nix` with `flake.modules.nixos.<name>` and, if the user cares, `flake.modules.homeManager.<name>`. Groups are `system`, `programs`, `session`, `hardware`, `gaming`, and `flatpak`. Then import it from a preset. Do not import it from a host unless it is host-private (disk, hardware, compositor).
 
-A Flatpak app is one file in `modules/aspects/flatpak/`. `default.nix` is the daemon. The app file only appends `services.flatpak.packages`. `graphical` imports the daemon and the apps every graphical host gets. Import an app from another preset to add it to that role. `easyeffects` is imported by `workstation`.
+A Flatpak app is one file in `modules/aspects/flatpak/`. `default.nix` is the daemon. The app file only appends `services.flatpak.packages`. The `apps` preset imports the daemon and the everyday apps. `workstation` and `laptop` import `apps`. The VM does not. `easyeffects` is imported by `workstation`.
 
-New role: add a preset that imports existing presets or aspects. `workstation` already imports `common`, `dev`, `graphical`, `nvidia`, and the gaming aspects. `laptop` stops before nvidia and gaming. `server` is `common` only.
+New role: add a preset that imports existing presets or aspects. `workstation` already imports `common`, `dev`, `graphical`, `apps`, `nvidia`, and the gaming aspects. `laptop` stops before nvidia and gaming. `server` is `common` only.
 
 New machine: `modules/hosts/<name>/{default.nix,_disk.nix,_hardware.nix}` defining `flake.modules.nixos."<name>-host"`, then add one entry to the `machines` map in `modules/hosts.nix`. That map feeds both `nixosConfigurations` and `colmenaHive`, so there is no second list to update; set `deployable = false` for a machine colmena must not target (the `vm`). Add an age recipient, `sops updatekeys`. Do not copy `desktop/_disk.nix` onto a laptop or a server. The games subvolume is desktop-only. `_` keeps import-tree from loading the disk and hardware files. disko runs `_disk.nix` directly. `laptop-nvidia` is the hybrid laptop: it imports the `laptop` preset and `nvidia-prime`, and its PRIME bus IDs stay on that host. The plain laptop's disk lives on `laptop-host`, not on the `laptop` module, so the preset can be imported without that disk.
 

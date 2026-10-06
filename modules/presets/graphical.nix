@@ -3,18 +3,6 @@
   flake.modules.nixos.graphical = { pkgs, ... }: {
     imports = with inputs.self.modules.nixos; [
       pipewire
-      flatpak
-      bitwarden
-      spotify
-      goofcord
-      signal
-      zen
-      opencode-desktop
-      telegram-desktop
-      thunderbird
-      kdeconnect
-      haruna
-      qbittorrent
       noctalia
     ];
     services.xserver.enable = false;

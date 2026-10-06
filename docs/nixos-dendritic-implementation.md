@@ -69,10 +69,11 @@ modules/
   presets/
     common.nix             # nix, locale, users, openssh, sops, nh
     dev.nix                # shells, git, editor, terminals, build tools
-    graphical.nix          # seat, pipewire, portal, fonts, flatpak
-    workstation.nix        # common + dev + graphical + gaming
-    laptop.nix             # common + dev + graphical + power
-    vm.nix                 # common + dev + graphical + oo7. workstation and laptop import oo7 too
+    graphical.nix          # seat, pipewire, portal, fonts, noctalia
+    apps.nix               # flatpak daemon and the everyday apps
+    workstation.nix        # common + dev + graphical + apps + gaming
+    laptop.nix             # common + dev + graphical + apps + power
+    vm.nix                 # common + dev + graphical + oo7. no apps preset
     server.nix             # common only, stub for later
     builder.nix            # common + dev + remote build stub
   aspects/
@@ -308,7 +309,8 @@ Do not use `config.flake.modules` inside an `imports` list. `imports` cannot dep
 {
   flake.modules.nixos.graphical = {
     imports = with inputs.self.modules.nixos; [
-      pipewire flatpak bitwarden spotify goofcord signal zen
+      pipewire
+      noctalia
     ];
     services.xserver.enable = false;
   };
@@ -539,7 +541,7 @@ sudo nixos-install --flake .#desktop
 
 Three aspects, same shape, host imports one. NixOS side enables the program and a display manager or a TTY login. home-manager side holds the user config.
 
-Do not put the compositor in `graphical`. `graphical` is seat, PipeWire, portals, fonts, the Flatpak daemon, and the Flatpak apps every graphical host gets. An app only some of those hosts need is imported by that preset. `easyeffects` is on `workstation`.
+Do not put the compositor in `graphical`. `graphical` is seat, PipeWire, portals, fonts, and Noctalia. The `apps` preset is the Flatpak daemon and the everyday apps, imported by `workstation` and `laptop`. The VM does not import it. An app only one role needs is imported by that preset. `easyeffects` is on `workstation`.
 
 Hyprland:
 

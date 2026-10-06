@@ -1,8 +1,8 @@
 { inputs, ... }:
 {
-  # A disposable QEMU/KVM box for exercising the shared aspects. Same
-  # composition as `laptop` without the power daemon, and without gaming.
-  # The `vm` host module merges into this by sharing the name.
+  # A disposable QEMU/KVM box for the shared seat and dev tools.
+  # Everyday apps stay on the apps preset. The vm host module merges
+  # into this by sharing the name.
   flake.modules.nixos.vm = {
     imports = with inputs.self.modules.nixos; [
       common

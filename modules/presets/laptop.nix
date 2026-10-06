@@ -5,6 +5,7 @@
       common
       dev
       graphical
+      apps
       oo7
       printing
       bluetooth
