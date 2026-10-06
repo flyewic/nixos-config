@@ -11,6 +11,12 @@
       ...
     }:
     {
+      # tuigreet reads the kernel keymap, so the console setup has to finish first.
+      systemd.services.greetd = {
+        after = [ "systemd-vconsole-setup.service" ];
+        wants = [ "systemd-vconsole-setup.service" ];
+      };
+
       services.greetd = {
         enable = true;
         useTextGreeter = true;
