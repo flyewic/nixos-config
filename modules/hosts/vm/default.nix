@@ -83,9 +83,12 @@ in
           "gtk,gl=on"
         ];
         # Host age identity, mounted before activation. The file is
-        # /home/flye/age/vm/key.txt and is not part of this repo. virtiofsd
-        # runs as the user who launched qemu, so that file has to be readable
-        # by that user. Mode 644 is enough; /home/flye is mode 700.
+        # /home/flye/age/vm/key.txt and is not part of this repo. It is mode
+        # 0600 in a 0700 directory; /home/flye is also 0700. virtiofsd runs as
+        # the user who launched qemu (--sandbox=none) and guest root is not
+        # remapped onto a host uid: the host:65534:0:1 translate only decides
+        # how ownership is displayed in the guest. So the daemon reads as that
+        # user, and mode 0600 is enough.
         sharedDirectories.sops-age = {
           source = "/home/flye/age/vm";
           target = "/var/lib/sops-nix";
