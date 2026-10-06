@@ -1,15 +1,13 @@
-{ ... }:
+{ inputs, ... }:
 {
   flake.modules.homeManager.ghostty =
     { config, ... }:
     let
-      startup = "${config.xdg.configHome}/ghostty/startup.sh";
+      # terminal-session owns the script so neither terminal imports the other.
+      startup = "${config.xdg.configHome}/terminal-session/startup.sh";
     in
     {
-      xdg.configFile."ghostty/startup.sh" = {
-        source = ./ghostty/startup.sh;
-        executable = true;
-      };
+      imports = [ inputs.self.modules.homeManager."terminal-session" ];
 
       programs.ghostty = {
         enable = true;

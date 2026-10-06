@@ -1,10 +1,10 @@
-{ ... }:
+{ inputs, ... }:
 {
   flake.modules.homeManager.kitty =
     { config, ... }:
     let
-      # Ghostty owns startup.sh: attach zellij, then exec herdr on handoff.
-      startup = "${config.xdg.configHome}/ghostty/startup.sh";
+      # terminal-session owns startup.sh: attach zellij, then exec herdr.
+      startup = "${config.xdg.configHome}/terminal-session/startup.sh";
 
       look = {
         font_family = "JetBrainsMono Nerd Font";
@@ -46,6 +46,8 @@
       };
     in
     {
+      imports = [ inputs.self.modules.homeManager."terminal-session" ];
+
       programs.kitty = {
         enable = true;
         settings = look // {
