@@ -73,7 +73,7 @@ modules/
     apps.nix               # flatpak daemon and the everyday apps
     workstation.nix        # common + dev + graphical + apps + gaming
     laptop.nix             # common + dev + graphical + apps + power
-    vm.nix                 # common + dev + graphical + oo7. no apps preset
+    vm.nix                 # common + dev + graphical + oo7 + greetd. no apps preset
     server.nix             # common only, stub for later
     builder.nix            # common + dev + remote build stub
   aspects/

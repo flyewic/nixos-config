@@ -6,7 +6,7 @@ Hosts import presets. Presets import aspects. A file existing does not enable a 
 
 Current presets are `common`, `dev`, `graphical`, `apps`, `workstation`, `laptop`, `vm`, `server`, and `builder`. `workstation` includes NVIDIA, Steam, Gamemode, Faugus, Lutris, Heroic, ProtonPlus, Goverlay, and MangoHud. `laptop` does not. The `laptop-nvidia` host imports `laptop` and `nvidia-prime`. `vm` is `common`, `dev`, and `graphical` for a local QEMU box. `workstation`, `laptop`, and `vm` use oo7 for the secret portal. Hyprland, niri, and river are separate aspects. The host imports one.
 
-Host modules are namespaced `<name>-host` (`desktop-host`, `laptop-host`, `laptop-nvidia-host`, `vm-host`) so a host never collides with a preset of the same name. One `machines` map in `modules/hosts.nix` feeds both `nixosConfigurations` and `colmenaHive`. Real hosts log in through greetd with the tuigreet greeter; the `vm` keeps ly autologin.
+Host modules are namespaced `<name>-host` (`desktop-host`, `laptop-host`, `laptop-nvidia-host`, `vm-host`) so a host never collides with a preset of the same name. One `machines` map in `modules/hosts.nix` feeds both `nixosConfigurations` and `colmenaHive`. Real hosts and the VM log in through greetd with the tuigreet greeter.
 
 Disks are disko, LUKS2, stateful btrfs, declared per host. The ESP stays clear. Secrets are sops-nix with age. Remote deploy is colmena. Local switch after install is `nh os switch`.
 
@@ -20,12 +20,12 @@ The `vm` host boots the shared aspects in QEMU/KVM without touching a real machi
 # Build the run script (no NixOS host required, just Nix + KVM).
 nix build .#nixosConfigurations.vm.config.system.build.vm
 
-# Boot it. `ly` auto-logs in flye into Hyprland.
+# Boot it. tuigreet asks for the flye password, then pick Hyprland.
 ./result/bin/run-nixos-vm-vm
 # or: just run-vm
 ```
 
-- Login: autologin as `flye`. That account's password is the sops hash. Root's password is `nixos`. Wheel sudo does not ask.
+- Login: tuigreet as `flye`. That account's password is the sops hash. Root's password is `nixos`. Wheel sudo does not ask.
 - Disk: `./nixos-vm.qcow2` persists between runs and is gitignored. Delete it to start clean.
 - Throwaway disk: `NIX_DISK_IMAGE=/tmp/other.qcow2 ./result/bin/run-nixos-vm-vm`.
 - Modifier: the shared Hyprland binds use the new Lua config (the 26.05 default) with a Lua `mod` local; the VM forces it to `ALT` so the host's Super bindings are not intercepted. The real hosts keep `SUPER`. Terminal is `Alt+Return` (kitty).

@@ -2,7 +2,7 @@
 {
   # A text login manager. tuigreet lists the installed Wayland sessions, so this
   # aspect stays compositor-agnostic: the host picks hyprland, niri, or river and
-  # the greeter offers whatever is present. The VM keeps its own ly autologin.
+  # the greeter offers whatever is present.
   flake.modules.nixos.greetd =
     {
       config,

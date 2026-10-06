@@ -22,21 +22,6 @@ in
 
       networking.hostName = "nixos-vm";
 
-      # VM only: a real host picks a compositor and a display manager later.
-      # ly is a text greeter, so autologin goes straight into Hyprland without
-      # pulling a second compositor for the greeter.
-      services.displayManager.ly = {
-        enable = true;
-        x11Support = false;
-      };
-      services.displayManager.defaultSession = "hyprland";
-      services.displayManager.autoLogin = {
-        enable = true;
-        user = user;
-      };
-      # ly's stacks include login, where services.oo7 adds pam_oo7. Autologin
-      # has no password, so the keyring stays locked until an app prompts.
-
       # Login password comes from secrets.yaml. Root has no sops hash, so it
       # keeps the known VM password. Wheel sudo stays passwordless.
       sops.secrets.user-password.neededForUsers = true;

@@ -9,6 +9,7 @@
       dev
       graphical
       oo7
+      greetd
     ];
   };
 
