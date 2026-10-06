@@ -1,19 +1,16 @@
 {
-  # TODO: replace with nixos-generate-config, or import a nixos-hardware profile.
-  # This file is this machine only. Do not share it with modules/hosts/laptop.
+  # From nixos-generate-config on kolbo. disko owns fileSystems and swap.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.initrd.availableKernelModules = [
-    "nvme"
     "xhci_pci"
-    "ahci"
-    "usbhid"
+    "thunderbolt"
+    "nvme"
     "usb_storage"
     "sd_mod"
-    "virtio_pci"
-    "virtio_blk"
-    "virtio_scsi"
+    "rtsx_pci_sdmmc"
   ];
+  boot.kernelModules = [ "kvm-intel" ];
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
 }
