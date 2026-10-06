@@ -25,61 +25,13 @@
         # UWSM starts graphical-session.target; this imports the Wayland env and
         # starts the session target so systemd user services (noctalia) come up.
         systemd.enable = true;
-
-        # Lua config (the 26.05 default). `mod` is a Lua local, so a host
-        # overrides the modifier for every bind below by forcing settings.mod.
-        settings = {
-          mod = {
-            _var = "SUPER";
-          };
-
-          config = {
-            input = {
-              kb_layout = config.keyboard.layout;
-              kb_variant = config.keyboard.variant;
-            };
-          };
-
-          bind = [
-            {
-              _args = [
-                (lib.generators.mkLuaInline ''mod .. " + RETURN"'')
-                (lib.generators.mkLuaInline ''hl.dsp.exec_cmd("kitty")'')
-              ];
-            }
-            {
-              _args = [
-                (lib.generators.mkLuaInline ''mod .. " + D"'')
-                (lib.generators.mkLuaInline ''hl.dsp.exec_cmd("fuzzel")'')
-              ];
-            }
-            {
-              _args = [
-                (lib.generators.mkLuaInline ''mod .. " + Q"'')
-                (lib.generators.mkLuaInline "hl.dsp.window.close()")
-              ];
-            }
-            {
-              _args = [
-                (lib.generators.mkLuaInline ''mod .. " + F"'')
-                (lib.generators.mkLuaInline "hl.dsp.window.fullscreen()")
-              ];
-            }
-            {
-              _args = [
-                (lib.generators.mkLuaInline ''mod .. " + V"'')
-                (lib.generators.mkLuaInline "hl.dsp.window.float()")
-              ];
-            }
-            {
-              _args = [
-                (lib.generators.mkLuaInline ''mod .. " + M"'')
-                (lib.generators.mkLuaInline "hl.dsp.exit()")
-              ];
-            }
-          ];
-          # TODO: monitors, workspace binds, nvidia cursor
-        };
+        # config.lua is ported from the curated niri config. The keyboard option
+        # fills the xkb layout so it does not depend on locale1.
+        extraConfig =
+          lib.replaceStrings
+            [ "@KB_LAYOUT@" "@KB_VARIANT@" ]
+            [ config.keyboard.layout config.keyboard.variant ]
+            (builtins.readFile ./hyprland/config.lua);
       };
     };
 }
