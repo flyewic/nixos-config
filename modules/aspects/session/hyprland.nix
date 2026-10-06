@@ -22,8 +22,9 @@
     {
       wayland.windowManager.hyprland = {
         enable = true;
-        # Systemd integration stays off until the session targets are set up.
-        systemd.enable = false;
+        # UWSM starts graphical-session.target; this imports the Wayland env and
+        # starts the session target so systemd user services (noctalia) come up.
+        systemd.enable = true;
 
         # Lua config (the 26.05 default). `mod` is a Lua local, so a host
         # overrides the modifier for every bind below by forcing settings.mod.
