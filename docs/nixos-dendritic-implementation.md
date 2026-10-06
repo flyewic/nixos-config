@@ -77,7 +77,7 @@ modules/
     server.nix             # common only, stub for later
     builder.nix            # common + dev + remote build stub
   aspects/
-    system/                users, locale, keyboard, nix, kernel, zram, network, openssh, sops, nh, tailscale
+    system/                users, locale, keyboard, nix, kernel, zram, hibernate, network, openssh, sops, nh, tailscale
     programs/              fish, alacritty, ghostty, kitty, terminal-session, zellij, herdr, fuzzel
     programs/editors/      neovim, zed
     programs/tools/        fastfetch, btop
@@ -461,7 +461,7 @@ Every host module is namespaced `<name>-host`, so a preset and a host may share 
 
 ## Phase 5: disks
 
-Stateful btrfs on LUKS2. No impermanence, no tmpfs root. Subvolumes exist so `/nix` and `/home` can be snapshotted independently of root. The ESP stays unencrypted so the bootloader can read the kernel. The passphrase is typed while disko formats the disk, and the initrd asks for it again at every boot. It is not stored in the repo. The desktop swapfile sits inside the encrypted volume. Resume-from-hibernate is not set up. The `zram` aspect on `common` adds one compressed RAM swap at priority 5, above those files. The swapfile stays the hibernation image.
+Stateful btrfs on LUKS2. No impermanence, no tmpfs root. Subvolumes exist so `/nix` and `/home` can be snapshotted independently of root. The ESP stays unencrypted so the bootloader can read the kernel. The passphrase is typed while disko formats the disk, and the initrd asks for it again at every boot. It is not stored in the repo. The desktop swapfile sits inside the encrypted volume. The `zram` aspect on `common` adds one compressed RAM swap at priority 5, above those files. The `hibernate` aspect on `workstation` and `laptop` uses the swapfile as the image. systemd records the btrfs offset in the EFI HibernateLocation variable, and `boot.resumeDevice` stays empty. Closing the lid suspends, then hibernates.
 
 The test VM has no disko file and no LUKS. Its disk is the QEMU image.
 

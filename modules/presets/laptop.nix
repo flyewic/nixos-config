@@ -11,6 +11,7 @@
       bluetooth
       mullvad
       greetd
+      hibernate
     ];
     services.power-profiles-daemon.enable = true;
     # TODO: tlp vs power-profiles-daemon, wireless backend

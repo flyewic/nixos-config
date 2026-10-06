@@ -20,6 +20,7 @@
       bluetooth
       mullvad
       greetd
+      hibernate
       easyeffects
     ];
   };
