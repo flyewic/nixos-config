@@ -3,7 +3,7 @@ let
   user = config.username;
   # Swap this one line to change compositors: hyprland | niri | river.
   # Both classes read it, so the NixOS and home-manager imports stay in sync.
-  compositor = "hyprland";
+  compositor = "niri";
 in
 {
   # `laptop` is the preset; this is the hybrid machine. Its disk and PRIME bus
