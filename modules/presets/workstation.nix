@@ -18,6 +18,7 @@
       printing
       bluetooth
       mullvad
+      greetd
       easyeffects
     ];
   };

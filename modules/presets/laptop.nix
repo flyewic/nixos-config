@@ -9,6 +9,7 @@
       printing
       bluetooth
       mullvad
+      greetd
     ];
     services.power-profiles-daemon.enable = true;
     # TODO: tlp vs power-profiles-daemon, wireless backend
