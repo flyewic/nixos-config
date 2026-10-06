@@ -39,6 +39,11 @@
     };
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/v0.6.0";
+
+    zol = {
+      url = "github:flyewic/zol-releases";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);

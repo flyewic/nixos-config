@@ -5,6 +5,7 @@
       fish
       neovim
       zed
+      zol
       opencode
       devtools
       devenv

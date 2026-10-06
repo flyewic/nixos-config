@@ -195,7 +195,8 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "sops-nix": "sops-nix",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "zol": "zol"
       }
     },
     "sops-nix": {
@@ -266,6 +267,26 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "zol": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791317631,
+        "narHash": "sha256-uJedO0gQOLs5FKvN1A4uZkDrAhG3lzGroxYXMbrXYQM=",
+        "owner": "flyewic",
+        "repo": "zol-releases",
+        "rev": "956515d4bd50b079b6d89a2e1fd49dacd4cf3c27",
+        "type": "github"
+      },
+      "original": {
+        "owner": "flyewic",
+        "repo": "zol-releases",
         "type": "github"
       }
     }
