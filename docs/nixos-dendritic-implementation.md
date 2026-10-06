@@ -259,7 +259,7 @@ OpenSSH is the same feature on both classes: the system runs the daemon, the use
       enable = true;
       clean.enable = true;
       clean.extraArgs = "--keep-since 14d --keep 3";
-      flake = "/home/${config.username}/src/nixos"; # TODO: real checkout, or override per host
+      flake = "/home/${config.username}/nixos-config";
     };
   };
 }
