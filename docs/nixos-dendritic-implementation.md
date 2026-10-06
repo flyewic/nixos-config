@@ -1,6 +1,6 @@
 # Dendritic NixOS implementation guide
 
-Status: design locked, not yet a repository. Placeholders are marked `TODO`.
+Status: implemented. `AGENTS.md` is the edit contract; this guide records the design and the reasoning behind it. Placeholders are marked `TODO`.
 
 This guide builds a new NixOS configuration in the dendritic pattern. Every Nix file except `flake.nix` is a flake-parts module. A file owns one feature and contributes to every class that feature touches. Hosts do not copy features. They import presets. Presets import aspects.
 
@@ -19,7 +19,7 @@ This guide builds a new NixOS configuration in the dendritic pattern. Every Nix 
 | Secrets | sops-nix, age, one `secrets.yaml` |
 | Deploy | colmena `colmenaHive`, tags matching presets |
 | Local switch | `nh os switch`. Installer and rescue stay on `nixos-rebuild` |
-| Channel | `nixos-unstable`, every input follows `nixpkgs`, pin with `flake.lock` |
+| Channel | `nixos-unstable`, every input follows `nixpkgs`, pin with `flake.lock`. Kernel is `linuxPackages_latest` from that pin |
 | Session | Hyprland, niri, and river sketched as equal aspects. Host imports one |
 | Gaming | Desktop only: NVIDIA, Steam, Gamemode, a games subvolume |
 
@@ -46,7 +46,9 @@ secrets/
 modules/
   flake-parts.nix          # imports flake-parts.flakeModules.modules
   treefmt.nix
-  hosts.nix                # nixosConfigurations and colmenaHive
+  checks.nix               # perSystem nixos-eval checks
+  devshell.nix             # admin devShell
+  hosts.nix                # machines map -> nixosConfigurations and colmenaHive
   hosts/
     desktop/
       default.nix          # identity, deployment, preset imports, HM user
@@ -56,30 +58,35 @@ modules/
       default.nix
       _disk.nix
       _hardware.nix
+    laptop-nvidia/
+      default.nix          # hybrid: laptop preset + nvidia-prime
+      _disk.nix
+      _hardware.nix
+    vm/
+      default.nix          # QEMU test box, not a colmena target
+      _qemu.nix            # wrapped qemu with the Nix Mesa for virgl
+      _hardware.nix
   presets/
     common.nix             # nix, locale, users, openssh, sops, nh
-    dev.nix                # shells, git, editor, build tools
-    graphical.nix          # seat, pipewire, portal, fonts
+    dev.nix                # shells, git, editor, terminals, build tools
+    graphical.nix          # seat, pipewire, portal, fonts, flatpak
     workstation.nix        # common + dev + graphical + gaming
     laptop.nix             # common + dev + graphical + power
+    vm.nix                 # common + dev + graphical + oo7
     server.nix             # common only, stub for later
     builder.nix            # common + dev + remote build stub
   aspects/
-    nix.nix
-    users.nix
-    openssh.nix
-    nh.nix
-    sops.nix
-    pipewire.nix
-    nvidia.nix
-    steam.nix
-    hyprland.nix
-    niri.nix
-    river.nix
-    tailscale.nix          # stub, enable per host
+    system/                users, locale, keyboard, nix, kernel, network, openssh, sops, nh, tailscale
+    programs/              fish, alacritty, ghostty, kitty, terminal-session, zellij, herdr, fuzzel
+    programs/editors/      neovim, zed
+    programs/tools/        fastfetch, btop
+    session/               hyprland, niri, river, greetd, pipewire, gnome-keyring, oo7
+    hardware/              nvidia, nvidia-prime
+    gaming/                steam, faugus, lutris, heroic, protonplus, goverlay, mangohud
+    flatpak/               default (daemon), bitwarden, spotify, goofcord, signal, zen, easyeffects
 ```
 
-Naming: aspect and preset names are the same in both classes when both exist. `modules/presets/dev.nix` defines `flake.modules.nixos.dev` and `flake.modules.homeManager.dev`.
+Naming: aspect and preset names are the same in both classes when both exist. `modules/presets/dev.nix` defines `flake.modules.nixos.dev` and `flake.modules.homeManager.dev`. Host modules are namespaced `<name>-host` (`desktop-host`, `laptop-host`, `laptop-nvidia-host`, `vm-host`), so a host name can never collide with a preset of the same name.
 
 ## Implementation order
 
@@ -169,7 +176,7 @@ Do not start with the compositor. A host that evaluates is the first milestone.
 An aspect file is a flake-parts module. It writes deferred modules into `flake.modules.<class>.<name>`. It does not call `nixosSystem`.
 
 ```nix
-# modules/aspects/nix.nix
+# modules/aspects/system/nix.nix
 { inputs, ... }:
 {
   flake.modules.nixos.nix = { pkgs, ... }: {
@@ -180,35 +187,43 @@ An aspect file is a flake-parts module. It writes deferred modules into `flake.m
       dates = "weekly";
       options = "--delete-older-than 14d";
     };
-    system.stateVersion = "26.05"; # TODO: set to the release installed, then never bump
   };
 }
 ```
 
-`stateVersion` is per host in practice. Set it in the host module, not in the shared aspect, if the two machines are installed on different dates.
+`stateVersion` is the flake-parts option in `modules/aspects/system/users.nix`. Hosts and home-manager read `config.stateVersion`. A machine installed on a later release sets `system.stateVersion` itself.
 
-Users are a shared aspect. The username is one constant, defined once.
+Users are a shared aspect. The username is the flake-parts option `username` in that file. Other modules read `config.username`. Do not copy the string into a host.
 
 ```nix
-# modules/aspects/users.nix
-{ ... }:
-let
-  user = "TODO_USER";
-in
+# modules/aspects/system/users.nix
+{ config, lib, ... }:
 {
-  flake.modules.nixos.users = { pkgs, ... }: {
-    users.users.${user} = {
-      isNormalUser = true;
-      extraGroups = [ "wheel" "networkmanager" ];
-      shell = pkgs.fish; # or pkgs.nushell; pick in the dev preset if it should vary
-    };
-    security.sudo.wheelNeedsPassword = true;
+  options.username = lib.mkOption {
+    type = lib.types.str;
+    default = "flye";
   };
 
-  flake.modules.homeManager.users = {
-    home.username = user;
-    home.homeDirectory = "/home/${user}";
-    home.stateVersion = "26.05";
+  options.stateVersion = lib.mkOption {
+    type = lib.types.str;
+    default = "26.05";
+  };
+
+  config = {
+    flake.modules.nixos.users = { pkgs, ... }: {
+      users.users.${config.username} = {
+        isNormalUser = true;
+        extraGroups = [ "wheel" "networkmanager" ];
+        shell = pkgs.fish; # or pkgs.nushell; pick in the dev preset if it should vary
+      };
+      security.sudo.wheelNeedsPassword = true;
+    };
+
+    flake.modules.homeManager.users = {
+      home.username = config.username;
+      home.homeDirectory = "/home/${config.username}";
+      home.stateVersion = config.stateVersion;
+    };
   };
 }
 ```
@@ -216,7 +231,7 @@ in
 OpenSSH is the same feature on both classes: the system runs the daemon, the user holds the client config.
 
 ```nix
-# modules/aspects/openssh.nix
+# modules/aspects/system/openssh.nix
 { ... }:
 {
   flake.modules.nixos.openssh = {
@@ -235,15 +250,15 @@ OpenSSH is the same feature on both classes: the system runs the daemon, the use
 `nh` is a common aspect. The flake path is the checkout on that machine, so the host module may override it. Servers get the package. They do not have to set `flake` if nobody sits there.
 
 ```nix
-# modules/aspects/nh.nix
-{ ... }:
+# modules/aspects/system/nh.nix
+{ config, ... }:
 {
   flake.modules.nixos.nh = {
     programs.nh = {
       enable = true;
       clean.enable = true;
       clean.extraArgs = "--keep-since 14d --keep 3";
-      flake = "/home/TODO_USER/src/nixos"; # TODO: real checkout, or override per host
+      flake = "/home/${config.username}/src/nixos"; # TODO: real checkout, or override per host
     };
   };
 }
@@ -292,7 +307,9 @@ Do not use `config.flake.modules` inside an `imports` list. `imports` cannot dep
 { inputs, ... }:
 {
   flake.modules.nixos.graphical = {
-    imports = with inputs.self.modules.nixos; [ pipewire ];
+    imports = with inputs.self.modules.nixos; [
+      pipewire flatpak bitwarden spotify goofcord signal zen
+    ];
     services.xserver.enable = false;
   };
   flake.modules.homeManager.graphical = {
@@ -307,7 +324,7 @@ Do not use `config.flake.modules` inside an `imports` list. `imports` cannot dep
 {
   flake.modules.nixos.workstation = {
     imports = with inputs.self.modules.nixos; [
-      common dev graphical nvidia steam
+      common dev graphical nvidia steam faugus lutris heroic protonplus goverlay mangohud
     ];
   };
   flake.modules.homeManager.workstation = {
@@ -347,53 +364,80 @@ Inheritance rule: a more specific preset imports the broader one. `workstation` 
 
 ```nix
 # modules/hosts.nix
-{ inputs, self, ... }:
+{ inputs, self, config, ... }:
 let
-  inherit (inputs.nixpkgs) lib;
-  user = "TODO_USER";
+  lib = inputs.nixpkgs.lib;
 
-  mkNixos = name: modules:
-    inputs.nixpkgs.lib.nixosSystem {
-      modules = [
-        inputs.colmena.nixosModules.deploymentOptions
-        inputs.home-manager.nixosModules.home-manager
-        { networking.hostName = name; }
-      ] ++ modules;
+  # Wiring every host shares.
+  hostBase = {
+    imports = [
+      inputs.disko.nixosModules.disko
+      inputs.colmena.nixosModules.deploymentOptions
+      inputs.home-manager.nixosModules.home-manager
+    ];
+    system.stateVersion = config.stateVersion;
+    home-manager = {
+      useGlobalPkgs = true;
+      useUserPackages = true;
     };
+  };
+
+  mkNixos = modules: lib.nixosSystem { modules = [ hostBase ] ++ modules; };
+
+  # One entry per machine. Both outputs derive from this map.
+  machines = {
+    desktop = {
+      deployable = true;
+      modules = [ self.modules.nixos."desktop-host" ];
+    };
+    laptop = {
+      deployable = true;
+      modules = [ self.modules.nixos."laptop-host" ];
+    };
+    "laptop-nvidia" = {
+      deployable = true;
+      modules = [ self.modules.nixos."laptop-nvidia-host" ];
+    };
+    vm = {
+      deployable = false;
+      modules = [ self.modules.nixos."vm-host" ];
+    };
+  };
+
+  asNode = m: { imports = [ hostBase ] ++ m.modules; };
 in
 {
-  flake.nixosConfigurations = {
-    desktop = mkNixos "desktop" [ self.modules.nixos.desktop ];
-    laptop = mkNixos "laptop" [ self.modules.nixos.laptop ];
-  };
+  flake.nixosConfigurations = lib.mapAttrs (_: m: mkNixos m.modules) machines;
 
-  flake.colmenaHive = inputs.colmena.lib.makeHive {
-    meta.nixpkgs = import inputs.nixpkgs { system = "x86_64-linux"; };
-    desktop = self.modules.nixos.desktop;
-    laptop = self.modules.nixos.laptop;
-  };
+  flake.colmenaHive = inputs.colmena.lib.makeHive (
+    { meta.nixpkgs = import inputs.nixpkgs { system = "x86_64-linux"; }; }
+    // lib.mapAttrs (_: asNode) (lib.filterAttrs (_: m: m.deployable) machines)
+  );
 }
 ```
 
-Importing `deploymentOptions` into `nixosSystem` keeps `deployment.*` from failing evaluation outside colmena. Colmena reads the same options when it evaluates the hive.
+`hostBase` carries `deploymentOptions`, which keeps `deployment.*` from failing evaluation outside colmena; colmena gets the same base through `asNode`. One `machines` map feeds both `nixosConfigurations` and `colmenaHive`, so a new machine is one entry, not two lists that can drift.
 
-The desktop host is identity, disk, hardware, deployment, and a preset list. The compositor is a host choice, not part of `workstation`, so swapping it does not fork the preset.
+The desktop host is identity, disk, hardware, deployment, and a preset list. The compositor is a host choice, not part of `workstation`, so swapping it does not fork the preset. A single `compositor` binding feeds both classes.
 
 ```nix
 # modules/hosts/desktop/default.nix
-{ inputs, ... }:
+{ inputs, config, ... }:
 let
-  user = "TODO_USER";
+  user = config.username;
+  compositor = "hyprland"; # hyprland | niri | river
 in
 {
-  flake.modules.nixos.desktop = { ... }: {
+  flake.modules.nixos."desktop-host" = {
     imports = [
       ./_disk.nix
       ./_hardware.nix
-      inputs.disko.nixosModules.disko
       inputs.self.modules.nixos.workstation
-      inputs.self.modules.nixos.hyprland # TODO: hyprland | niri | river
+      inputs.self.modules.nixos.${compositor}
     ];
+
+    networking.hostName = "bropor";
+    time.timeZone = "Europe/Stockholm";
 
     deployment = {
       targetHost = "TODO_DESKTOP_HOST"; # tailscale name or IP
@@ -401,19 +445,17 @@ in
       tags = [ "workstation" "desktop" ];
     };
 
-    home-manager = {
-      useGlobalPkgs = true;
-      useUserPackages = true;
-      users.${user}.imports = [
-        inputs.self.modules.homeManager.workstation
-        inputs.self.modules.homeManager.hyprland
-      ];
-    };
+    home-manager.users.${user}.imports = [
+      inputs.self.modules.homeManager.workstation
+      inputs.self.modules.homeManager.${compositor}
+    ];
   };
 }
 ```
 
-The laptop host is the same file with `laptop` presets, no `nvidia` or `steam`, and its own compositor import. The preset and the host both write `flake.modules.nixos.laptop`, so the host does not import that preset by name. Importing it would loop. Hardware modules come from `nixos-hardware` when a profile exists, otherwise from `nixos-generate-config`.
+Every host module is namespaced `<name>-host`, so a preset and a host may share a role name. The `laptop` preset writes `flake.modules.nixos.laptop`; the plain laptop writes `flake.modules.nixos."laptop-host"` (disk, hardware, compositor, deployment) and imports the preset itself. `hosts.nix` builds both `nixosConfigurations.laptop` and the colmena node from the one `machines` entry. Hardware modules come from `nixos-hardware` when a profile exists, otherwise from `nixos-generate-config`.
+
+`laptop-nvidia` imports `inputs.self.modules.nixos.laptop` and `inputs.self.modules.nixos."nvidia-prime"`. It does not import `laptop-host`. PRIME bus IDs stay on that host. Offload turns on when `nvidiaBusId` and one of `intelBusId` or `amdgpuBusId` are set. Do not add `nvidia-prime` to the `laptop` preset.
 
 ## Phase 5: disks
 
@@ -428,7 +470,7 @@ Desktop adds a games subvolume. Steam libraries should live there, not under `/h
 {
   disko.devices.disk.main = {
     type = "disk";
-    device = "/dev/disk/by-id/TODO_BY_ID"; # never /dev/nvme0n1. disko requires an absolute path
+    device = "/dev/disk/by-id/nvme-TS1TMTE220S_G023930316"; # never /dev/nvme0n1. disko requires an absolute path
     content = {
       type = "gpt";
       partitions = {
@@ -497,12 +539,12 @@ sudo nixos-install --flake .#desktop
 
 Three aspects, same shape, host imports one. NixOS side enables the program and a display manager or a TTY login. home-manager side holds the user config.
 
-Do not put the compositor in `graphical`. `graphical` is seat, PipeWire, portals, fonts.
+Do not put the compositor in `graphical`. `graphical` is seat, PipeWire, portals, fonts, the Flatpak daemon, and the Flatpak apps every graphical host gets. An app only some of those hosts need is imported by that preset. `easyeffects` is on `workstation`.
 
 Hyprland:
 
 ```nix
-# modules/aspects/hyprland.nix
+# modules/aspects/session/hyprland.nix
 { ... }:
 {
   flake.modules.nixos.hyprland = { pkgs, ... }: {
@@ -524,7 +566,7 @@ Hyprland:
 Niri:
 
 ```nix
-# modules/aspects/niri.nix
+# modules/aspects/session/niri.nix
 { ... }:
 {
   flake.modules.nixos.niri = {
@@ -544,7 +586,7 @@ Niri:
 River has no equivalent `programs.river` module that covers config. Keep it as files so the three aspects stay comparable.
 
 ```nix
-# modules/aspects/river.nix
+# modules/aspects/session/river.nix
 { ... }:
 {
   flake.modules.nixos.river = { pkgs, ... }: {
@@ -560,10 +602,10 @@ NVIDIA note, desktop only: Hyprland needs the usual env (`WLR_NO_HARDWARE_CURSOR
 
 ## Phase 7: gaming
 
-Desktop preset only. Open kernel module, modesetting, Steam, Gamemode. No per-title fixes in v1.
+Desktop preset only. Open kernel module, modesetting, Steam, Gamemode, Faugus, Lutris, Heroic, ProtonPlus, Goverlay, and MangoHud. No per-title fixes in v1.
 
 ```nix
-# modules/aspects/nvidia.nix
+# modules/aspects/hardware/nvidia.nix
 { ... }:
 {
   flake.modules.nixos.nvidia = { config, pkgs, ... }: {
@@ -581,10 +623,10 @@ Desktop preset only. Open kernel module, modesetting, Steam, Gamemode. No per-ti
 ```
 
 ```nix
-# modules/aspects/steam.nix
+# modules/aspects/gaming/steam.nix
 { ... }:
 {
-  flake.modules.nixos.steam = { pkgs, ... }: {
+  flake.modules.nixos.steam = {
     programs.gamemode.enable = true;
     programs.steam = {
       enable = true;
@@ -615,12 +657,12 @@ creation_rules:
 ```
 
 ```nix
-# modules/aspects/sops.nix
+# modules/aspects/system/sops.nix
 { ... }:
 {
   flake.modules.nixos.sops = { ... }: {
     imports = [ inputs.sops-nix.nixosModules.sops ]; # see note
-    sops.defaultSopsFile = ../../secrets/secrets.yaml;
+    sops.defaultSopsFile = ../../../secrets/secrets.yaml;
     sops.age.keyFile = "/var/lib/sops-nix/key.txt";
   };
 }
@@ -640,15 +682,15 @@ colmena apply --on @workstation
 colmena apply --on @laptop
 ```
 
-A future server is a host module with `tags = [ "server" ];` and `imports = [ self.modules.nixos.server ];`, plus one line in `hosts.nix`. No preset changes required unless the server needs a service aspect.
+A future server is a host module with `tags = [ "server" ];` and `imports = [ self.modules.nixos.server ];`, plus one entry in the `machines` map in `hosts.nix`. No preset changes required unless the server needs a service aspect.
 
 Build on the workstation and push. For a builder host later, set `deployment.buildOnTarget = false` and a remote builder in the `builder` preset. Do not design remote builders until that machine exists.
 
 ## Adding a machine
 
-1. `modules/hosts/<name>/{default.nix,_disk.nix,_hardware.nix}`. The `_` prefix keeps import-tree from loading those files. disko runs `_disk.nix` directly.
+1. `modules/hosts/<name>/{default.nix,_disk.nix,_hardware.nix}` defining `flake.modules.nixos."<name>-host"`. The `_` prefix keeps import-tree from loading the disk and hardware files. disko runs `_disk.nix` directly.
 2. Import an existing preset. Add a preset only if the role is new.
-3. Register the host in `modules/hosts.nix` for both `nixosConfigurations` and `colmenaHive`.
+3. Add one entry to the `machines` map in `modules/hosts.nix` (`deployable = false` if colmena must not target it). It feeds both `nixosConfigurations` and `colmenaHive`.
 4. Add the age recipient to `.sops.yaml` and rekey.
 5. Set `deployment.targetHost` and tags.
 
@@ -662,13 +704,13 @@ Build on the workstation and push. For a builder host later, set `deployment.bui
 - `_` prefix on files that import-tree must ignore (generated hardware notes, local overrides).
 - `nix fmt` before commit. Lockfile is committed.
 
-## Open items before the repo exists
+## Open items
 
-- Username, desktop hostname, laptop hostname.
-- Disk by-id for both machines, swap size, whether the desktop games subvolume is a separate disk.
+- Laptop hostname. Desktop hostname is `bropor`.
+- Laptop disk by-id and swap size. Desktop disk by-id and swap size are set.
 - Shell: fish. The `dev` preset sets `users.defaultUserShell`. The fish aspect holds the config.
 - Age key locations and who the admin recipient is.
 - Which compositor the desktop imports first. The other two aspects still land in the tree.
 - Wireless and power on the laptop (NetworkManager is a safe `common` default; power stays in the laptop preset).
 - Tailscale: stub aspect now, enable per host when the tailnet name is the colmena target.
-- `stateVersion` set to the release actually installed, then left alone.
+- `stateVersion` stays on the shared default unless a host was installed on another release.

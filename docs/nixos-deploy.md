@@ -50,7 +50,7 @@ lsblk -o NAME,SIZE,MODEL,SERIAL
 ls -l /dev/disk/by-id/
 ```
 
-Copy the by-id path for the system disk into `modules/hosts/desktop/_disk.nix`. Never use `/dev/nvme0n1`. Names move. By-id does not.
+`modules/hosts/desktop/_disk.nix` already names `/dev/disk/by-id/nvme-TS1TMTE220S_G023930316`. On the installer, confirm that path still points at the system disk before disko. Never use `/dev/nvme0n1`. Names move. By-id does not.
 
 Partition and mount with disko, then install:
 
@@ -61,7 +61,7 @@ sudo nixos-install --flake .#desktop
 
 Disko asks for the LUKS passphrase twice while it formats the root partition, then reuses it to open the volume. The ESP is not encrypted. The passphrase is not written into the repo. After reboot the initrd asks for it again before the root filesystem mounts. A mismatch during formatting retries; three mismatches abort disko.
 
-`nixos-install` sets the root password prompt. Set one. That password is not the LUKS passphrase. SSH with passwords stays off. After reboot, log in on the console as `TODO_USER` or as root, then:
+`nixos-install` sets the root password prompt. Set one. That password is not the LUKS passphrase. SSH with passwords stays off. After reboot, log in on the console as root. `flye` has no password on a real host yet, so set one with `passwd flye`, then:
 
 ```bash
 sudo nixos-rebuild switch --flake .#desktop
@@ -90,7 +90,7 @@ sops secrets/secrets.yaml   # create it if needed
 nix shell nixpkgs#sops --command sops updatekeys secrets/secrets.yaml
 ```
 
-Commit the encrypted file and `.sops.yaml` only. Then declare one unimportant secret in `modules/aspects/sops.nix` and switch. Read it back from `/run/secrets`. If that works, real tokens can follow.
+Commit the encrypted file and `.sops.yaml` only. Then declare one unimportant secret in `modules/aspects/system/sops.nix` and switch. Read it back from `/run/secrets`. If that works, real tokens can follow.
 
 The key file is out of band. disko will destroy it on a reinstall. Repeat this step after any disko run. A later impermanence layout would need the key on a persistent volume. This config is stateful, so `/var/lib` survives a normal reboot.
 
@@ -124,6 +124,8 @@ Same sequence, other files.
 6. `colmena apply --on @laptop`.
 
 Do not copy `desktop/_disk.nix` and edit the device path. The games subvolume will be created on the laptop disk.
+
+The hybrid machine is `laptop-nvidia`. Same sequence with `modules/hosts/laptop-nvidia/_disk.nix`, `.#laptop-nvidia`, and `colmena apply --on @laptop-nvidia`. It imports the `laptop` preset and `nvidia-prime`. Read the PCI bus IDs on that machine and set them on the host before expecting offload. It is also tagged `laptop`, so `@laptop` applies to both laptops. No Steam.
 
 ## 7. A later server
 
@@ -161,4 +163,4 @@ User config ships with the system generation. There is no `home-manager switch` 
 
 ## Still not filled in
 
-Username, hostnames, disk by-ids, swap size, shell, first compositor, tailnet name. None of those block section 3 except the desktop by-id, which you read off the installer.
+Laptop hostnames and disk by-ids, laptop swap size, first compositor, tailnet name. The username is `flye`. The desktop hostname is `bropor`, its time zone is `Europe/Stockholm`, and its disk by-id is already in `_disk.nix`. Confirm that path on the installer before disko. The shell is fish.
