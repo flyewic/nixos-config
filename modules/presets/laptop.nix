@@ -5,7 +5,7 @@
       common
       dev
       graphical
-      gnome-keyring
+      oo7
       printing
       bluetooth
       mullvad

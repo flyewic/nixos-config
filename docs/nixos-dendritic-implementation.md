@@ -72,7 +72,7 @@ modules/
     graphical.nix          # seat, pipewire, portal, fonts, flatpak
     workstation.nix        # common + dev + graphical + gaming
     laptop.nix             # common + dev + graphical + power
-    vm.nix                 # common + dev + graphical + oo7
+    vm.nix                 # common + dev + graphical + oo7. workstation and laptop import oo7 too
     server.nix             # common only, stub for later
     builder.nix            # common + dev + remote build stub
   aspects/

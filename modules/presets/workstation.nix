@@ -14,7 +14,7 @@
       goverlay
       mangohud
       prismlauncher
-      gnome-keyring
+      oo7
       printing
       bluetooth
       mullvad
