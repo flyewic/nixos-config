@@ -1,9 +1,11 @@
 keys:
   - &admin_age age1ke7nh6q503tz57ytav933ccw2h6c0nk4ns9mmxs2mwt4kwwvsf4s2kdpvu
   - &vm_age age18547f0zzejnukd3rxmpkj0eqgwexytnlxz08g3e76fax9e4hqprspkdy7p
+  - &laptop_age age1dkkr8prlu4aavc7g6apm79a04plj0ssmf7mlv5xmeymc9mnz6gqqujqfcs
 creation_rules:
   - path_regex: secrets/.*\.yaml
     key_groups:
       - age:
           - *admin_age
           - *vm_age
+          - *laptop_age
