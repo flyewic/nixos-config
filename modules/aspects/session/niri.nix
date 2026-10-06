@@ -1,4 +1,4 @@
-{ ... }:
+{ config, ... }:
 {
   flake.modules.nixos.niri =
     { config, lib, ... }:
@@ -11,10 +11,19 @@
       };
     };
 
-  flake.modules.homeManager.niri = {
-    programs.niri = {
-      enable = true;
-      # TODO: monitors, binds
+  flake.modules.homeManager.niri =
+    { lib, ... }:
+    {
+      wayland.windowManager.niri = {
+        enable = true;
+        # config.kdl is curated from the old DMS setup; shell actions go through
+        # noctalia. The keyboard option fills the xkb layout so niri does not
+        # depend on org.freedesktop.locale1.
+        extraConfig =
+          lib.replaceStrings
+            [ "@KB_LAYOUT@" "@KB_VARIANT@" ]
+            [ config.keyboard.layout config.keyboard.variant ]
+            (builtins.readFile ./niri/config.kdl);
+      };
     };
-  };
 }
