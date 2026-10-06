@@ -1,2 +1,109 @@
 #!/bin/sh
-# TODO: monitors, binds, layout
+# Ported from the curated niri config so the compositors feel the same.
+# River's layout differs (views in a stack), so niri's column actions map to
+# the closest equivalent or are dropped. Shell actions go through noctalia.
+# `@KB_LAYOUT@`/`@KB_VARIANT@` are filled from the `keyboard` option.
+
+# --- Appearance ---
+riverctl border-width 1
+riverctl border-color-focused 0x707070ff
+riverctl border-color-unfocused 0xd0d0d0ff
+riverctl border-color-urgent 0xcc4444ff
+riverctl background-color 0x00000000
+
+# --- Input ---
+riverctl keyboard-layout @KB_LAYOUT@
+riverctl keyboard-variant @KB_VARIANT@
+riverctl input type:touchpad tap enabled
+riverctl input type:touchpad natural-scroll enabled
+
+# --- Application Launchers ---
+riverctl map normal Super Return spawn kitty
+riverctl map normal Super B spawn "flatpak run app.zen_browser.zen"
+riverctl map normal Super Space spawn "noctalia msg panel-toggle launcher"
+riverctl map normal Super V spawn "noctalia msg panel-toggle clipboard"
+riverctl map normal Super M spawn "noctalia msg panel-toggle control-center"
+riverctl map normal Super X spawn "noctalia msg panel-toggle session"
+riverctl map normal Super comma spawn "noctalia msg settings-toggle"
+riverctl map normal Super N spawn "noctalia msg panel-toggle notifications"
+
+# --- Security ---
+riverctl map normal Super+Alt L spawn "noctalia msg session lock"
+riverctl map normal Super+Shift E exit
+riverctl map normal Ctrl+Alt Delete spawn "noctalia msg panel-toggle control-center"
+
+# --- Audio Controls ---
+riverctl map normal None XF86AudioRaiseVolume spawn "noctalia msg volume-up 3"
+riverctl map normal None XF86AudioLowerVolume spawn "noctalia msg volume-down 3"
+riverctl map normal None XF86AudioMute spawn "noctalia msg volume-mute"
+riverctl map normal None XF86AudioMicMute spawn "noctalia msg mic-mute"
+riverctl map normal None XF86AudioPause spawn "noctalia msg media toggle"
+riverctl map normal None XF86AudioPlay spawn "noctalia msg media toggle"
+riverctl map normal None XF86AudioPrev spawn "noctalia msg media previous"
+riverctl map normal None XF86AudioNext spawn "noctalia msg media next"
+
+# --- Brightness Controls ---
+riverctl map normal None XF86MonBrightnessUp spawn "noctalia msg brightness-up 5"
+riverctl map normal None XF86MonBrightnessDown spawn "noctalia msg brightness-down 5"
+
+# --- Window Management ---
+riverctl map normal Super Q close
+riverctl map normal Super F zoom
+riverctl map normal Super+Shift F toggle-fullscreen
+riverctl map normal Super+Shift T toggle-float
+
+# --- Focus Navigation ---
+riverctl map normal Super left focus-view left
+riverctl map normal Super down focus-view down
+riverctl map normal Super up focus-view up
+riverctl map normal Super right focus-view right
+riverctl map normal Super H focus-view left
+riverctl map normal Super J focus-view down
+riverctl map normal Super K focus-view up
+riverctl map normal Super L focus-view right
+
+# --- Window Movement ---
+riverctl map normal Super+Shift left move-view left
+riverctl map normal Super+Shift down move-view down
+riverctl map normal Super+Shift up move-view up
+riverctl map normal Super+Shift right move-view right
+riverctl map normal Super+Shift H move-view left
+riverctl map normal Super+Shift J move-view down
+riverctl map normal Super+Shift K move-view up
+riverctl map normal Super+Shift L move-view right
+
+# --- Output Navigation ---
+riverctl map normal Super+Ctrl H focus-output left
+riverctl map normal Super+Ctrl J focus-output down
+riverctl map normal Super+Ctrl K focus-output up
+riverctl map normal Super+Ctrl L focus-output right
+riverctl map normal Super+Shift+Ctrl H send-to-output left
+riverctl map normal Super+Shift+Ctrl J send-to-output down
+riverctl map normal Super+Shift+Ctrl K send-to-output up
+riverctl map normal Super+Shift+Ctrl L send-to-output right
+
+# --- Numbered Tags ---
+for i in 1 2 3 4 5 6 7 8 9; do
+    riverctl map normal Super "$i" focus-tag "$i"
+    riverctl map normal Super+Shift "$i" send-to-tag "$i"
+done
+
+# --- Resize Mode ---
+riverctl map normal Super R enter-mode resize
+riverctl map resize None left resize horizontal -10
+riverctl map resize None right resize horizontal +10
+riverctl map resize None up resize vertical -10
+riverctl map resize None down resize vertical +10
+riverctl map resize None H resize horizontal -10
+riverctl map resize None L resize horizontal +10
+riverctl map resize None K resize vertical -10
+riverctl map resize None J resize vertical +10
+riverctl map resize None Return leave-mode
+
+# --- Screenshots ---
+riverctl map normal Super P spawn "noctalia msg screenshot-region"
+riverctl map normal None Print spawn "noctalia msg screenshot-region"
+riverctl map normal Ctrl Print spawn "noctalia msg screenshot-fullscreen"
+
+# --- System Controls ---
+riverctl map normal Super+Shift P spawn "noctalia msg dpms-off"

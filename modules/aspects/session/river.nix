@@ -1,4 +1,4 @@
-{ ... }:
+{ config, ... }:
 {
   flake.modules.nixos.river =
     {
@@ -16,7 +16,18 @@
       };
     };
 
-  flake.modules.homeManager.river = {
-    xdg.configFile."river/init".source = ./river/init;
-  };
+  flake.modules.homeManager.river =
+    { lib, ... }:
+    {
+      # init is ported from the curated niri config. The keyboard option fills
+      # the xkb layout.
+      xdg.configFile."river/init" = {
+        text =
+          lib.replaceStrings
+            [ "@KB_LAYOUT@" "@KB_VARIANT@" ]
+            [ config.keyboard.layout config.keyboard.variant ]
+            (builtins.readFile ./river/init);
+        executable = true;
+      };
+    };
 }
