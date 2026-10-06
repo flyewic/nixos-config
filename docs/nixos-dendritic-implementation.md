@@ -15,7 +15,7 @@ This guide builds a new NixOS configuration in the dendritic pattern. Every Nix 
 | Composition | Preset modules import aspects. Hosts import presets. No `den` |
 | Hosts now | Gaming and dev desktop, development laptop |
 | Hosts later | Servers and builders, added as presets, not a refactor |
-| Disks | disko, stateful btrfs subvolumes, layout private to the host |
+| Disks | disko, LUKS2, stateful btrfs subvolumes, layout private to the host. The ESP stays clear |
 | Secrets | sops-nix, age, one `secrets.yaml` |
 | Deploy | colmena `colmenaHive`, tags matching presets |
 | Local switch | `nh os switch`. Installer and rescue stay on `nixos-rebuild` |
@@ -417,7 +417,9 @@ The laptop host is the same file with `laptop` presets, no `nvidia` or `steam`, 
 
 ## Phase 5: disks
 
-Stateful btrfs. No impermanence, no tmpfs root. Subvolumes exist so `/nix` and `/home` can be snapshotted independently of root.
+Stateful btrfs on LUKS2. No impermanence, no tmpfs root. Subvolumes exist so `/nix` and `/home` can be snapshotted independently of root. The ESP stays unencrypted so the bootloader can read the kernel. The passphrase is typed while disko formats the disk, and the initrd asks for it again at every boot. It is not stored in the repo. The desktop swapfile sits inside the encrypted volume. Resume-from-hibernate is not set up.
+
+The test VM has no disko file and no LUKS. Its disk is the QEMU image.
 
 Desktop adds a games subvolume. Steam libraries should live there, not under `/home`, so a home rollback does not touch game data.
 
@@ -443,28 +445,35 @@ Desktop adds a games subvolume. Steam libraries should live there, not under `/h
         root = {
           size = "100%";
           content = {
-            type = "btrfs";
-            extraArgs = [ "-f" ];
-            subvolumes = {
-              "/root" = {
-                mountpoint = "/";
-                mountOptions = [ "compress=zstd" "noatime" ];
-              };
-              "/nix" = {
-                mountpoint = "/nix";
-                mountOptions = [ "compress=zstd" "noatime" ];
-              };
-              "/home" = {
-                mountpoint = "/home";
-                mountOptions = [ "compress=zstd" ];
-              };
-              "/games" = {
-                mountpoint = "/var/games";
-                mountOptions = [ "compress=zstd" "noatime" ];
-              };
-              "/swap" = {
-                mountpoint = "/swap";
-                swap.swapfile.size = "32G"; # TODO: match RAM
+            type = "luks";
+            name = "cryptroot";
+            # No passwordFile and no settings.keyFile: disko asks twice while
+            # formatting. The initrd asks again at boot.
+            settings.allowDiscards = true;
+            content = {
+              type = "btrfs";
+              extraArgs = [ "-f" ];
+              subvolumes = {
+                "/root" = {
+                  mountpoint = "/";
+                  mountOptions = [ "compress=zstd" "noatime" ];
+                };
+                "/nix" = {
+                  mountpoint = "/nix";
+                  mountOptions = [ "compress=zstd" "noatime" ];
+                };
+                "/home" = {
+                  mountpoint = "/home";
+                  mountOptions = [ "compress=zstd" ];
+                };
+                "/games" = {
+                  mountpoint = "/var/games";
+                  mountOptions = [ "compress=zstd" "noatime" ];
+                };
+                "/swap" = {
+                  mountpoint = "/swap";
+                  swap.swapfile.size = "32G"; # TODO: match RAM
+                };
               };
             };
           };
@@ -475,7 +484,7 @@ Desktop adds a games subvolume. Steam libraries should live there, not under `/h
 }
 ```
 
-Laptop disk is the same without `/games`, and with a smaller swap. Do not factor the whole disko attrset into a shared aspect. A helper for mount options is enough.
+Laptop disk is the same LUKS2 wrap without `/games`, and with a smaller swap. Each host chooses its own passphrase when that disk is formatted. Do not factor the whole disko attrset into a shared aspect. A helper for mount options is enough.
 
 Install with disko, then the flake:
 

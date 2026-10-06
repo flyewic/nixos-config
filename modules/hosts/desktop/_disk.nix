@@ -20,37 +20,44 @@
         root = {
           size = "100%";
           content = {
-            type = "btrfs";
-            extraArgs = [ "-f" ];
-            subvolumes = {
-              "/root" = {
-                mountpoint = "/";
-                mountOptions = [
-                  "compress=zstd"
-                  "noatime"
-                ];
-              };
-              "/nix" = {
-                mountpoint = "/nix";
-                mountOptions = [
-                  "compress=zstd"
-                  "noatime"
-                ];
-              };
-              "/home" = {
-                mountpoint = "/home";
-                mountOptions = [ "compress=zstd" ];
-              };
-              "/games" = {
-                mountpoint = "/var/games";
-                mountOptions = [
-                  "compress=zstd"
-                  "noatime"
-                ];
-              };
-              "/swap" = {
-                mountpoint = "/swap";
-                swap.swapfile.size = "32G"; # TODO: match RAM
+            type = "luks";
+            name = "cryptroot";
+            # disko asks for this passphrase twice while formatting. The initrd
+            # asks again at boot. It is not stored in the repo.
+            settings.allowDiscards = true;
+            content = {
+              type = "btrfs";
+              extraArgs = [ "-f" ];
+              subvolumes = {
+                "/root" = {
+                  mountpoint = "/";
+                  mountOptions = [
+                    "compress=zstd"
+                    "noatime"
+                  ];
+                };
+                "/nix" = {
+                  mountpoint = "/nix";
+                  mountOptions = [
+                    "compress=zstd"
+                    "noatime"
+                  ];
+                };
+                "/home" = {
+                  mountpoint = "/home";
+                  mountOptions = [ "compress=zstd" ];
+                };
+                "/games" = {
+                  mountpoint = "/var/games";
+                  mountOptions = [
+                    "compress=zstd"
+                    "noatime"
+                  ];
+                };
+                "/swap" = {
+                  mountpoint = "/swap";
+                  swap.swapfile.size = "32G"; # TODO: match RAM
+                };
               };
             };
           };

@@ -10,7 +10,7 @@ NixOS configuration in the dendritic pattern. Read `docs/nixos-dendritic-impleme
 - home-manager is a NixOS module. No standalone home-manager. No hjem.
 - Presets import aspects. Hosts import presets. No `den`, no custom aspect graph.
 - import-tree loads files. A file existing does not enable a feature. `_` prefix excludes a file.
-- Disks are disko, stateful btrfs, private to the host. No impermanence.
+- Disks are disko, LUKS2, stateful btrfs, private to the host. The ESP stays clear. No impermanence.
 - Secrets are sops-nix, age, one `secrets.yaml`. Not agenix, vaultix, or colmena `deployment.keys`.
 - Deploy is colmena `colmenaHive`. Tags match preset names.
 - Local switch after first boot is `nh os switch`. No `nh home`. Installer and rescue stay on `nixos-rebuild`.
@@ -48,6 +48,7 @@ Compositor swap: change the import on the host module, both the NixOS class and 
 - Commit age private keys, or declare a secret before that host's key exists at `/var/lib/sops-nix/key.txt`.
 - Bump `system.stateVersion` or `home.stateVersion`.
 - Use `/dev/nvme*` or `/dev/sda` in disko. By-id only.
+- Put a LUKS passphrase or key file in the repo. disko asks while formatting, and the initrd asks again at boot.
 - Fill `TODO_USER`, hostnames, disk ids, or age keys with guesses.
 - Add digga, flake-utils, haumea, deploy-rs, or agenix.
 - Replace colmena with `nh`, or run `nh home`. Home-manager is the system generation.

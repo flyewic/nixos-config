@@ -21,29 +21,36 @@
         root = {
           size = "100%";
           content = {
-            type = "btrfs";
-            extraArgs = [ "-f" ];
-            subvolumes = {
-              "/root" = {
-                mountpoint = "/";
-                mountOptions = [
-                  "compress=zstd"
-                  "noatime"
-                ];
+            type = "luks";
+            name = "cryptroot";
+            # disko asks for this passphrase twice while formatting. The initrd
+            # asks again at boot. It is not stored in the repo.
+            settings.allowDiscards = true;
+            content = {
+              type = "btrfs";
+              extraArgs = [ "-f" ];
+              subvolumes = {
+                "/root" = {
+                  mountpoint = "/";
+                  mountOptions = [
+                    "compress=zstd"
+                    "noatime"
+                  ];
+                };
+                "/nix" = {
+                  mountpoint = "/nix";
+                  mountOptions = [
+                    "compress=zstd"
+                    "noatime"
+                  ];
+                };
+                "/home" = {
+                  mountpoint = "/home";
+                  mountOptions = [ "compress=zstd" ];
+                };
+                # TODO: swap subvolume, smaller than the desktop, sized to RAM.
+                # disko only accepts a size like 16G, so the subvolume waits for that number.
               };
-              "/nix" = {
-                mountpoint = "/nix";
-                mountOptions = [
-                  "compress=zstd"
-                  "noatime"
-                ];
-              };
-              "/home" = {
-                mountpoint = "/home";
-                mountOptions = [ "compress=zstd" ];
-              };
-              # TODO: swap subvolume, smaller than the desktop, sized to RAM.
-              # disko only accepts a size like 16G, so the subvolume waits for that number.
             };
           };
         };

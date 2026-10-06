@@ -4,7 +4,7 @@ Companion to `nixos-dendritic-implementation.md`. That document says what the co
 
 Placeholders match the implementation guide. Do not invent disk ids, hostnames, or age keys. Fill them when the machine is in front of you.
 
-Assumptions carried over: dendritic flake-parts config, home-manager as a NixOS module, disko with stateful btrfs, sops-nix with age, colmena, `nh` for local switches after the first boot. Desktop is the first host. Laptop is the second. Servers come later and skip the USB.
+Assumptions carried over: dendritic flake-parts config, home-manager as a NixOS module, disko with LUKS2 and stateful btrfs, sops-nix with age, colmena, `nh` for local switches after the first boot. Desktop is the first host. Laptop is the second. Servers come later and skip the USB.
 
 ## What you need before the USB
 
@@ -59,7 +59,9 @@ sudo nix run github:nix-community/disko -- --mode disko ./modules/hosts/desktop/
 sudo nixos-install --flake .#desktop
 ```
 
-`nixos-install` sets the root password prompt. Set one. SSH with passwords stays off. After reboot, log in on the console as `TODO_USER` or as root, then:
+Disko asks for the LUKS passphrase twice while it formats the root partition, then reuses it to open the volume. The ESP is not encrypted. The passphrase is not written into the repo. After reboot the initrd asks for it again before the root filesystem mounts. A mismatch during formatting retries; three mismatches abort disko.
+
+`nixos-install` sets the root password prompt. Set one. That password is not the LUKS passphrase. SSH with passwords stays off. After reboot, log in on the console as `TODO_USER` or as root, then:
 
 ```bash
 sudo nixos-rebuild switch --flake .#desktop
@@ -132,6 +134,8 @@ No USB if the machine already runs NixOS and accepts SSH.
 3. Register it in `modules/hosts.nix` for both `nixosConfigurations` and `colmenaHive`.
 4. `colmena apply --on @server` from the admin machine.
 
+A server has no one at the console, so passphrase-only LUKS does not survive a reboot: a power cut, a crash, or a kernel-update reboot leaves it stopped at the initrd prompt until someone is physically there. Colmena never reboots the machine, but plan the unlock before the server matters. Keep the passphrase keyslot and enroll a second unlock: TPM2 (`systemd-cryptenroll --tpm2-device=auto`, which needs systemd in stage 1) or an initrd SSH / network-bound unlock. Never a plain keyfile on the ESP, which is unencrypted.
+
 A builder is the same with the `builder` preset. Do not set up remote builders until that host has switched.
 
 ## Day to day
@@ -152,6 +156,7 @@ User config ships with the system generation. There is no `home-manager switch` 
 - Secret declared, key missing: activation error from sops-nix. Install the key, or drop the secret, and switch again.
 - `deployment` option unknown: `deploymentOptions` is not imported into `nixosSystem`. See the host wiring in the implementation guide.
 - Disk device missing at boot: by-id typo, or the disk moved. Fix `_disk.nix` from the installer. Do not rerun disko on a disk that already has the install unless you mean to wipe it.
+- Initrd keeps asking for the disk passphrase: the typed passphrase does not match the one given to disko. It is not the `nixos-install` root password, and it is not in the repo.
 - Colmena cannot connect: target host and root SSH, not the flake. `--dry-run` still evaluates. A successful dry-run with a failed apply is the network.
 
 ## Still not filled in

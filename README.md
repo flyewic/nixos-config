@@ -6,7 +6,7 @@ Hosts import presets. Presets import aspects. A file existing does not enable a 
 
 Current presets are `common`, `dev`, `graphical`, `workstation`, `laptop`, `vm`, `server`, and `builder`. `workstation` includes NVIDIA, Steam, and Gamemode. `laptop` does not. `vm` is `common`, `dev`, and `graphical` for a local QEMU box. Hyprland, niri, and river are separate aspects. The host imports one.
 
-Disks are disko, stateful btrfs, declared per host. Secrets are sops-nix with age. Remote deploy is colmena. Local switch after install is `nh os switch`.
+Disks are disko, LUKS2, stateful btrfs, declared per host. The ESP stays clear. Secrets are sops-nix with age. Remote deploy is colmena. Local switch after install is `nh os switch`.
 
 Design notes are in `docs/nixos-dendritic-implementation.md`. Install order is in `docs/nixos-deploy.md`. `AGENTS.md` is the edit contract.
 
