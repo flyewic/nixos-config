@@ -51,7 +51,8 @@
                 };
                 "/swap" = {
                   mountpoint = "/swap";
-                  swap.swapfile.size = "16G";
+                  # Equal to kolbo's RAM so a hibernation image fits.
+                  swap.swapfile.size = "32G";
                 };
               };
             };

@@ -48,8 +48,8 @@
                   mountpoint = "/home";
                   mountOptions = [ "compress=zstd" ];
                 };
-                # TODO: swap subvolume, smaller than the desktop, sized to RAM.
-                # disko only accepts a size like 16G, so the subvolume waits for that number.
+                # TODO: swap subvolume, sized to this machine's RAM.
+                # disko only accepts a size like 32G, so the subvolume waits for that number.
               };
             };
           };

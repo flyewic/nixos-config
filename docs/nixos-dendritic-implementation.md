@@ -528,7 +528,7 @@ Desktop adds a games subvolume. Steam libraries should live there, not under `/h
 }
 ```
 
-Laptop disk is the same LUKS2 wrap without `/games`, and with a smaller swap. Each host chooses its own passphrase when that disk is formatted. Do not factor the whole disko attrset into a shared aspect. A helper for mount options is enough.
+Laptop disk is the same LUKS2 wrap without `/games`. kolbo's swapfile is 32G, equal to its RAM, so a hibernation image fits. The plain laptop's swap size is still open. Each host chooses its own passphrase when that disk is formatted. Do not factor the whole disko attrset into a shared aspect. A helper for mount options is enough.
 
 Install with disko, then the flake:
 
@@ -709,7 +709,7 @@ Build on the workstation and push. For a builder host later, set `deployment.bui
 ## Open items
 
 - Laptop hostname. Desktop hostname is `bropor`.
-- Laptop disk by-id and swap size. Desktop disk by-id and swap size are set.
+- Plain laptop disk by-id and swap size. Desktop disk by-id and swap size are set. kolbo's disk by-id and 32G swapfile are set.
 - Shell: fish. The `dev` preset sets `users.defaultUserShell`. The fish aspect holds the config.
 - Age key locations and who the admin recipient is.
 - Which compositor the desktop imports first. The other two aspects still land in the tree.

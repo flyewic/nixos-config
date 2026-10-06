@@ -117,7 +117,7 @@ A failed activation rolls back like `nixos-rebuild`. A failed copy means SSH or 
 Same sequence, other files.
 
 1. New host age key on the laptop, public half into `.sops.yaml`, `sops updatekeys`.
-2. By-id into `modules/hosts/laptop/_disk.nix`. No `/games` subvolume. Smaller swap.
+2. By-id into `modules/hosts/laptop/_disk.nix`. No `/games` subvolume. Swap equal to that machine's RAM.
 3. Host module imports the `laptop` preset, not `workstation`. No NVIDIA, no Steam.
 4. disko, `nixos-install --flake .#laptop`, console login, local switch.
 5. Secret decrypt check.
@@ -163,4 +163,4 @@ User config ships with the system generation. There is no `home-manager switch` 
 
 ## Still not filled in
 
-Laptop hostnames and disk by-ids, laptop swap size, first compositor, tailnet name. The username is `flye`. The desktop hostname is `bropor`, its time zone is `Europe/Stockholm`, and its disk by-id is already in `_disk.nix`. Confirm that path on the installer before disko. The shell is fish.
+Laptop hostnames and disk by-ids, plain laptop swap size, first compositor, tailnet name. The username is `flye`. The desktop hostname is `bropor`, its time zone is `Europe/Stockholm`, and its disk by-id is already in `_disk.nix`. kolbo's swapfile is 32G. Confirm the desktop disk path on the installer before disko. The shell is fish.

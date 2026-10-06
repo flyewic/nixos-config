@@ -112,4 +112,4 @@ Run `nix fmt` before a commit that changes Nix. Commit the lockfile.
 
 ## Still open
 
-Laptop hostnames and disk by-ids, laptop swap size, which compositor the desktop imports first, tailnet name, `laptop-nvidia` PCI bus IDs. Leave those markers. Ask. Desktop hostname is `bropor`, its disk by-id is set, and its time zone is `Europe/Stockholm`. The username is the `username` option in `modules/aspects/system/users.nix`. The login shell is fish, set in the dev preset.
+Laptop hostnames and disk by-ids, plain laptop swap size, which compositor the desktop imports first, tailnet name, `laptop-nvidia` PCI bus IDs. Leave those markers. Ask. Desktop hostname is `bropor`, its disk by-id is set, and its time zone is `Europe/Stockholm`. kolbo's swapfile is 32G. The username is the `username` option in `modules/aspects/system/users.nix`. The login shell is fish, set in the dev preset.
