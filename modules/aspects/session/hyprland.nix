@@ -1,4 +1,4 @@
-{ ... }:
+{ config, ... }:
 {
   flake.modules.nixos.hyprland =
     { config, lib, ... }:
@@ -32,12 +32,10 @@
             _var = "SUPER";
           };
 
-          # Swedish layout, no dead keys. Wayland compositors ignore the NixOS
-          # xkb options, so this has to be set on the compositor too.
           config = {
             input = {
-              kb_layout = "se";
-              kb_variant = "nodeadkeys";
+              kb_layout = config.keyboard.layout;
+              kb_variant = config.keyboard.variant;
             };
           };
 
