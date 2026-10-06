@@ -1,9 +1,11 @@
 # import-tree ignores this file. disko runs it directly:
-#   sudo nix run github:nix-community/disko -- --mode disko ./modules/hosts/desktop/_disk.nix
+#   sudo nix run github:nix-community/disko -- --mode disko ./modules/hosts/laptop-nvidia/_disk.nix
+# No /games subvolume. Do not copy the desktop disk file.
+# Own by-id. Do not point this at the other laptop's disk.
 {
   disko.devices.disk.main = {
     type = "disk";
-    device = "/dev/disk/by-id/nvme-TS1TMTE220S_G023930316"; # never /dev/nvme0n1
+    device = "/dev/disk/by-id/TODO_BY_ID"; # never /dev/nvme0n1
     content = {
       type = "gpt";
       partitions = {
@@ -47,17 +49,8 @@
                   mountpoint = "/home";
                   mountOptions = [ "compress=zstd" ];
                 };
-                "/games" = {
-                  mountpoint = "/var/games";
-                  mountOptions = [
-                    "compress=zstd"
-                    "noatime"
-                  ];
-                };
-                "/swap" = {
-                  mountpoint = "/swap";
-                  swap.swapfile.size = "32G";
-                };
+                # TODO: swap subvolume, smaller than the desktop, sized to RAM.
+                # disko only accepts a size like 16G, so the subvolume waits for that number.
               };
             };
           };

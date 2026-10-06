@@ -1,46 +1,26 @@
-{ inputs, ... }:
+{ inputs, config, ... }:
 let
-  # TODO_USER must match modules/aspects/users.nix.
-  user = "TODO_USER";
+  user = config.username;
+  # Swap this one line to change compositors: hyprland | niri | river.
+  # Both classes read it, so the NixOS and home-manager imports stay in sync.
+  compositor = "hyprland";
 in
 {
-  # Merges with modules/presets/vm.nix, exactly like the laptop host does.
-  flake.modules.nixos.vm =
+  flake.modules.nixos."vm-host" =
     {
       config,
       lib,
-      pkgs,
       ...
     }:
-    let
-      # The nixpkgs qemu expects NixOS's /run/opengl-driver for its GBM/EGL
-      # drivers. Built from a non-NixOS host that path is absent, so virgl
-      # fails and aquamarine (Hyprland) gets no renderer. Point qemu at the Nix
-      # Mesa instead. Harmless on a real NixOS host.
-      qemuGl = pkgs.runCommand "qemu-gl" { } ''
-        mkdir -p $out/bin
-        for f in ${pkgs.qemu}/bin/*; do
-          ln -s "$f" "$out/bin/$(basename "$f")"
-        done
-        rm -f $out/bin/qemu-system-x86_64
-        cp ${qemuGlWrapper} $out/bin/qemu-system-x86_64
-      '';
-      qemuGlWrapper = pkgs.writeShellScript "qemu-system-x86_64" ''
-        export GBM_BACKENDS_PATH=${pkgs.mesa}/lib/gbm
-        export LIBGL_DRIVERS_PATH=${pkgs.mesa}/lib/dri
-        export LD_LIBRARY_PATH=${pkgs.mesa}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-        exec ${pkgs.qemu}/bin/qemu-system-x86_64 "$@"
-      '';
-    in
     {
       imports = [
         ./_hardware.nix
-        inputs.home-manager.nixosModules.home-manager
-        inputs.self.modules.nixos.hyprland # TODO: hyprland | niri | river
+        ./_qemu.nix
+        inputs.self.modules.nixos.vm
+        inputs.self.modules.nixos.${compositor}
       ];
 
       networking.hostName = "nixos-vm";
-      system.stateVersion = "26.05"; # release at first install; do not bump
 
       # VM only: a real host picks a compositor and a display manager later.
       # ly is a text greeter, so autologin goes straight into Hyprland without
@@ -67,13 +47,13 @@ in
       # QEMU/KVM. `virtualisation.*` QEMU options only exist in the vmVariant
       # submodule in this nixpkgs, so configure them there. virtio-vga-gl gives
       # the guest a virgl renderer; without it Hyprland cannot create a
-      # renderer on virtio-gpu and cannot set the monitor mode.
+      # renderer on virtio-gpu and cannot set the monitor mode. The wrapped
+      # qemu package is in ./_qemu.nix.
       virtualisation.vmVariant.virtualisation = {
         memorySize = 4096;
         cores = 4;
         diskSize = 8192;
         graphics = true;
-        qemu.package = qemuGl;
         qemu.options = [
           "-vga"
           "none"
@@ -82,42 +62,38 @@ in
           "-display"
           "gtk,gl=on"
         ];
-        # Host age identity, mounted before activation. The file is
-        # /home/flye/age/vm/key.txt and is not part of this repo. It is mode
-        # 0600 in a 0700 directory; /home/flye is also 0700. virtiofsd runs as
+        # Host age identity, mounted before activation. key.txt in `source`
+        # is not part of this repo. It is mode 0600 in a 0700 directory.
+        # virtiofsd runs as
         # the user who launched qemu (--sandbox=none) and guest root is not
         # remapped onto a host uid: the host:65534:0:1 translate only decides
         # how ownership is displayed in the guest. So the daemon reads as that
         # user, and mode 0600 is enough.
         sharedDirectories.sops-age = {
-          source = "/home/flye/age/vm";
+          source = "/home/${user}/age/vm";
           target = "/var/lib/sops-nix";
         };
       };
 
-      home-manager = {
-        useGlobalPkgs = true;
-        useUserPackages = true;
-        users.${user} = {
-          imports = [
-            inputs.self.modules.homeManager.vm
-            inputs.self.modules.homeManager.hyprland # TODO: same compositor as above
-          ];
+      home-manager.users.${user} = {
+        imports = [
+          inputs.self.modules.homeManager.vm
+          inputs.self.modules.homeManager.${compositor}
+        ];
 
-          # Host-private Hyprland overrides, applied after the shared aspect so
-          # lib.mkForce wins. The host compositor owns Super, so the VM uses Alt
-          # for the shared binds. 1920x1080 is in the guest's mode list and is
-          # fast under virgl; 3840x2160 with scale 2 is sharper but slower.
-          wayland.windowManager.hyprland.settings = {
-            mod = lib.mkForce {
-              _var = "ALT";
-            };
-            monitor = lib.mkForce {
-              output = "";
-              mode = "1920x1080@60";
-              position = "auto";
-              scale = 1;
-            };
+        # Host-private Hyprland overrides, applied after the shared aspect so
+        # lib.mkForce wins. The host compositor owns Super, so the VM uses Alt
+        # for the shared binds. 1920x1080 is in the guest's mode list and is
+        # fast under virgl; 3840x2160 with scale 2 is sharper but slower.
+        wayland.windowManager.hyprland.settings = {
+          mod = lib.mkForce {
+            _var = "ALT";
+          };
+          monitor = lib.mkForce {
+            output = "";
+            mode = "1920x1080@60";
+            position = "auto";
+            scale = 1;
           };
         };
       };

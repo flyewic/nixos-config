@@ -1,23 +1,32 @@
-{ ... }:
-let
-  # TODO_USER: one username, shared by every host. Login shell is chosen in the dev preset.
-  user = "TODO_USER";
-in
+{ config, lib, ... }:
 {
-  flake.modules.nixos.users = {
-    users.users.${user} = {
-      isNormalUser = true;
-      extraGroups = [
-        "wheel"
-        "networkmanager"
-      ];
-    };
-    security.sudo.wheelNeedsPassword = true;
+  options.username = lib.mkOption {
+    type = lib.types.str;
+    default = "flye";
   };
 
-  flake.modules.homeManager.users = {
-    home.username = user;
-    home.homeDirectory = "/home/${user}";
-    home.stateVersion = "26.05"; # release at first install; do not bump
+  options.stateVersion = lib.mkOption {
+    type = lib.types.str;
+    default = "26.05";
+    description = "Shared stateVersion. A host installed on a later release sets its own.";
+  };
+
+  config = {
+    flake.modules.nixos.users = {
+      users.users.${config.username} = {
+        isNormalUser = true;
+        extraGroups = [
+          "wheel"
+          "networkmanager"
+        ];
+      };
+      security.sudo.wheelNeedsPassword = true;
+    };
+
+    flake.modules.homeManager.users = {
+      home.username = config.username;
+      home.homeDirectory = "/home/${config.username}";
+      home.stateVersion = config.stateVersion;
+    };
   };
 }

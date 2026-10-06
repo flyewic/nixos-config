@@ -1,22 +1,21 @@
-{ inputs, ... }:
+{ inputs, config, ... }:
 let
-  # TODO_USER must match modules/aspects/users.nix.
-  user = "TODO_USER";
+  user = config.username;
+  # Swap this one line to change compositors: hyprland | niri | river.
+  # Both classes read it, so the NixOS and home-manager imports stay in sync.
+  compositor = "hyprland";
 in
 {
-  flake.modules.nixos.desktop = {
+  flake.modules.nixos."desktop-host" = {
     imports = [
       ./_disk.nix
       ./_hardware.nix
-      inputs.disko.nixosModules.disko
-      inputs.home-manager.nixosModules.home-manager
-      inputs.colmena.nixosModules.deploymentOptions
       inputs.self.modules.nixos.workstation
-      inputs.self.modules.nixos.hyprland # TODO: hyprland | niri | river
+      inputs.self.modules.nixos.${compositor}
     ];
 
-    networking.hostName = "TODO_DESKTOP_HOSTNAME";
-    system.stateVersion = "26.05"; # release at first install; do not bump
+    networking.hostName = "bropor";
+    time.timeZone = "Europe/Stockholm";
 
     deployment = {
       targetHost = "TODO_DESKTOP_HOST"; # tailscale name or IP
@@ -27,13 +26,9 @@ in
       ];
     };
 
-    home-manager = {
-      useGlobalPkgs = true;
-      useUserPackages = true;
-      users.${user}.imports = [
-        inputs.self.modules.homeManager.workstation
-        inputs.self.modules.homeManager.hyprland # TODO: same compositor as above
-      ];
-    };
+    home-manager.users.${user}.imports = [
+      inputs.self.modules.homeManager.workstation
+      inputs.self.modules.homeManager.${compositor}
+    ];
   };
 }
