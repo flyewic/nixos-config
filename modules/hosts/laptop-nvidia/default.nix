@@ -17,13 +17,15 @@ in
       inputs.self.modules.nixos.${compositor}
     ];
 
-    networking.hostName = "TODO_LAPTOP_NVIDIA_HOSTNAME";
+    networking.hostName = "kolbo";
+    time.timeZone = "Europe/Stockholm";
 
     # lspci on this machine, then convert hex to decimal.
-    # "0000:01:00.0" is "PCI:1@0:0:0". Set nvidiaBusId and one integrated id.
-    hardware.nvidia.prime.nvidiaBusId = ""; # TODO
-    hardware.nvidia.prime.intelBusId = ""; # TODO
-    hardware.nvidia.prime.amdgpuBusId = ""; # TODO
+    # NVIDIA AD107M at 01:00.0 -> PCI:1@0:0:0.
+    # Intel Iris Xe at 00:02.0 -> PCI:0@0:2:0. Leave amdgpuBusId empty.
+    hardware.nvidia.prime.nvidiaBusId = "PCI:1@0:0:0";
+    hardware.nvidia.prime.intelBusId = "PCI:0@0:2:0";
+    hardware.nvidia.prime.amdgpuBusId = "";
 
     deployment = {
       targetHost = "TODO_LAPTOP_NVIDIA_HOST"; # tailscale name or IP

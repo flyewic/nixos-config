@@ -5,7 +5,7 @@
 {
   disko.devices.disk.main = {
     type = "disk";
-    device = "/dev/disk/by-id/TODO_BY_ID"; # never /dev/nvme0n1
+    device = "/dev/disk/by-id/nvme-SKHynix_HFS001TEJ9X115N_SSC4T00051020476F"; # never /dev/nvme0n1
     content = {
       type = "gpt";
       partitions = {
@@ -49,8 +49,10 @@
                   mountpoint = "/home";
                   mountOptions = [ "compress=zstd" ];
                 };
-                # TODO: swap subvolume, smaller than the desktop, sized to RAM.
-                # disko only accepts a size like 16G, so the subvolume waits for that number.
+                "/swap" = {
+                  mountpoint = "/swap";
+                  swap.swapfile.size = "16G";
+                };
               };
             };
           };
