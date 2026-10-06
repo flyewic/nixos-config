@@ -39,11 +39,6 @@
     };
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/v0.6.0";
-
-    noctalia = {
-      url = "github:noctalia-dev/noctalia";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
