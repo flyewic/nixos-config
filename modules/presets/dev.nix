@@ -1,11 +1,22 @@
 { inputs, ... }:
 {
   flake.modules.nixos.dev = { pkgs, ... }: {
-    imports = with inputs.self.modules.nixos; [ fish ];
+    imports = with inputs.self.modules.nixos; [
+      fish
+      neovim
+      zed
+      opencode
+      devtools
+      devenv
+      sublime
+      kate
+      micro
+      vim
+    ];
     environment.systemPackages = with pkgs; [ git ];
     # The login shell is chosen here, not in the users aspect.
     users.defaultUserShell = pkgs.fish;
-    # TODO: editor and build tools
+    # TODO: build tools
   };
 
   flake.modules.homeManager.dev = {
@@ -16,6 +27,7 @@
       alacritty
       zellij
       herdr
+      devenv
     ];
     programs.git.enable = true;
   };

@@ -6,6 +6,9 @@
       dev
       graphical
       gnome-keyring
+      printing
+      bluetooth
+      mullvad
     ];
     services.power-profiles-daemon.enable = true;
     # TODO: tlp vs power-profiles-daemon, wireless backend

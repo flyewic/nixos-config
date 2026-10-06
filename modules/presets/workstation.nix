@@ -7,7 +7,18 @@
       graphical
       nvidia
       steam
+      faugus
+      lutris
+      heroic
+      protonplus
+      goverlay
+      mangohud
+      prismlauncher
       gnome-keyring
+      printing
+      bluetooth
+      mullvad
+      easyeffects
     ];
   };
 
@@ -16,6 +27,7 @@
       common
       dev
       graphical
+      easyeffects
     ];
   };
 }

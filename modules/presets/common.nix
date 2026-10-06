@@ -3,6 +3,7 @@
   flake.modules.nixos.common = {
     imports = with inputs.self.modules.nixos; [
       nix
+      kernel
       users
       locale
       keyboard
@@ -10,6 +11,9 @@
       openssh
       sops
       nh
+      fastfetch
+      btop
+      cli
     ];
   };
 
