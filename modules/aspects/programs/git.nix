@@ -9,7 +9,7 @@
       enable = true;
       settings.user = {
         name = "flyewic";
-        email = "flyewic@gmail.com";
+        email = "22092995+flyewic@users.noreply.github.com";
       };
     };
   };
