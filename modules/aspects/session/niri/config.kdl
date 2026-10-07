@@ -11,6 +11,13 @@ gestures {
     }
 }
 
+output "eDP-1" {
+    mode "3072x1920@165.002"
+    position x=0 y=0
+    scale 1.75
+    variable-refresh-rate
+}
+
 input {
     keyboard {
         xkb {
