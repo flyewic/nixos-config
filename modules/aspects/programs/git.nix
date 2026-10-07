@@ -7,8 +7,10 @@
   flake.modules.homeManager.git = {
     programs.git = {
       enable = true;
-      userName = "flyewic";
-      userEmail = "flyewic@gmail.com";
+      settings.user = {
+        name = "flyewic";
+        email = "flyewic@gmail.com";
+      };
     };
   };
 }
