@@ -25,6 +25,7 @@
     imports = with inputs.self.modules.homeManager; [
       fish
       git
+      starship
       ghostty
       kitty
       alacritty
