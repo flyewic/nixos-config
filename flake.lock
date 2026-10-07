@@ -61,6 +61,27 @@
         "type": "github"
       }
     },
+    "herdr-gpui": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1791386341,
+        "narHash": "sha256-E0opZX+Fuxmc5pU+EWw3U/VOcHELrPHAmXgbk1m14bA=",
+        "owner": "penso",
+        "repo": "herdr-gpui",
+        "rev": "a687c4690800b90eddfa67ab1b8c10ce7a74ddc2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "penso",
+        "repo": "herdr-gpui",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -189,6 +210,7 @@
         "colmena": "colmena",
         "disko": "disko",
         "flake-parts": "flake-parts",
+        "herdr-gpui": "herdr-gpui",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "nix-flatpak": "nix-flatpak",
@@ -197,6 +219,27 @@
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix",
         "zol": "zol"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "herdr-gpui",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790062494,
+        "narHash": "sha256-Mds1vuoczq1fRm1rf+Iar8IKDBHNjOMo2JqqPWJUlng=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "b88764907c1b2de6c0e206d8d9d9634d91c81334",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
       }
     },
     "sops-nix": {
