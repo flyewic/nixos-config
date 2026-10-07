@@ -4,6 +4,7 @@
     imports = with inputs.self.modules.nixos; [
       pipewire
       noctalia
+      theme
     ];
     services.xserver.enable = false;
     xdg.portal.enable = true;

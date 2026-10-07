@@ -17,6 +17,7 @@ NixOS configuration in the dendritic pattern. Read `docs/nixos-dendritic-impleme
 - Channel is `nixos-unstable`, pinned by `flake.lock`. Inputs follow `nixpkgs`. The kernel is `linuxPackages_latest` from that pin.
 - Compositors are equal aspects: hyprland, niri, river. The host imports one. Not the preset.
 - Gaming (Steam, Gamemode, Faugus, Lutris, Heroic, ProtonPlus, Goverlay, MangoHud, `/var/games`) is the workstation preset only. The desktop imports the `nvidia` aspect through `workstation`. `laptop-nvidia` imports the `laptop` preset and `nvidia-prime`. Do not add NVIDIA to the `laptop` preset.
+- Theming is Stylix, the `theme` aspect (Catppuccin Mocha, JetBrainsMono), which owns app colors and fonts through home-manager. Noctalia themes the shell only; its app templates are not the theming path.
 
 ## Layout
 
@@ -27,7 +28,7 @@ modules/checks.nix                 perSystem nixos-eval checks
 modules/devshell.nix               admin devShell
 modules/hosts.nix                  only file that calls nixosSystem and makeHive
 modules/aspects/system/            users, locale, keyboard, kernel, zram, hibernate, nix, nh, network, openssh, sops, tailscale
-modules/aspects/programs/          fish, alacritty, ghostty, kitty, terminal-session, zellij, herdr, fuzzel
+modules/aspects/programs/          fish, alacritty, ghostty, kitty, theme, terminal-session, zellij, herdr, fuzzel
 modules/aspects/programs/editors/  neovim, zed
 modules/aspects/programs/tools/    fastfetch, btop
 modules/aspects/session/           hyprland, niri, river, greetd, pipewire, gnome-keyring, oo7, noctalia

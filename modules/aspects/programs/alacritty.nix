@@ -18,7 +18,6 @@
           };
           dynamic_padding = true;
           decorations = "Full";
-          opacity = 0.8;
           class = {
             instance = "Alacritty";
             general = "Alacritty";
@@ -28,26 +27,6 @@
         scrolling = {
           history = 10000;
           multiplier = 3;
-        };
-
-        font = {
-          normal = {
-            family = "monospace";
-            style = "Regular";
-          };
-          bold = {
-            family = "monospace";
-            style = "Bold";
-          };
-          italic = {
-            family = "monospace";
-            style = "Italic";
-          };
-          bold_italic = {
-            family = "monospace";
-            style = "Bold Italic";
-          };
-          size = 12.0;
         };
 
         colors = {

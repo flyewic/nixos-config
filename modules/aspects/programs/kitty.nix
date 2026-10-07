@@ -1,8 +1,6 @@
 { ... }:
 let
   look = {
-    font_family = "JetBrainsMono Nerd Font";
-    font_size = 13;
     strip_trailing_spaces = "smart";
     scrollback_lines = 20000;
     tab_bar_style = "powerline";
