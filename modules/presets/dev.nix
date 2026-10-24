@@ -7,7 +7,6 @@
       neovim
       zed
       zol
-      herdr-gpui
       opencode
       devtools
       devenv
