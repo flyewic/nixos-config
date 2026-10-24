@@ -7,8 +7,6 @@
   flake.modules.nixos.hibernate =
     { config, ... }:
     {
-      boot.initrd.systemd.enable = true;
-
       assertions = [
         {
           assertion = !config.security.protectKernelImage;
