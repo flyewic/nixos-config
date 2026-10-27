@@ -30,6 +30,7 @@
       alacritty
       zellij
       herdr
+      oh-my-pi
       devenv
     ];
   };
