@@ -3,6 +3,8 @@
   flake.modules.nixos.dev = { pkgs, ... }: {
     imports = with inputs.self.modules.nixos; [
       fish
+      zsh
+      nushell
       git
       neovim
       zed
@@ -23,6 +25,8 @@
   flake.modules.homeManager.dev = {
     imports = with inputs.self.modules.homeManager; [
       fish
+      zsh
+      nushell
       git
       starship
       ghostty
