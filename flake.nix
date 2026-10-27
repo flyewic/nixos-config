@@ -58,6 +58,10 @@
     omp = {
       url = "github:can1357/oh-my-pi";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nix-bun = {
+        url = "github:ryoppippi/nix-bun/9b901919c7b50d355d77df675b96b776b8a2e020";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
     };
   };
 

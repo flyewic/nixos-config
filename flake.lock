@@ -367,21 +367,21 @@
     "nix-bun": {
       "inputs": {
         "nixpkgs": [
-          "omp",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1792664215,
-        "narHash": "sha256-89U++Pnz9kb8a5Vdx8xAq9z3V172S7A9Surz8mgjGrM=",
+        "lastModified": 1793135629,
+        "narHash": "sha256-fAENUM9GuuMNGrHc8jrNZLhMwYLVRvR04jS5D9LRIZA=",
         "owner": "ryoppippi",
         "repo": "nix-bun",
-        "rev": "0db08e3d1db83272822209ab82f34b399080494e",
+        "rev": "9b901919c7b50d355d77df675b96b776b8a2e020",
         "type": "github"
       },
       "original": {
         "owner": "ryoppippi",
         "repo": "nix-bun",
+        "rev": "9b901919c7b50d355d77df675b96b776b8a2e020",
         "type": "github"
       }
     },
